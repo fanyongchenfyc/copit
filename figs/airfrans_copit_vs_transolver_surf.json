@@ -1,0 +1,19 @@
+{
+  "case": "airFoil2D_SST_31.812_1.334_0.371_3.287_0.0_19.548",
+  "copit": {
+    "p_rel_l1": 0.060113690021464744,
+    "p_rel_l2": 0.05975641320181301,
+    "wss_rel_l1": 0.6745028366205404,
+    "wss_rel_l2": 0.6894224550663779
+  },
+  "transolver": {
+    "p_rel_l1": 0.1828825074043155,
+    "p_rel_l2": 0.17445694405306306,
+    "wss_rel_l1": 28.94874697534048,
+    "wss_rel_l2": 30.89927655189675
+  },
+  "copit_model": "/home/ycfan/fyc/copit_airfrans/full_result/model.pth",
+  "transolver_model": "/home/ycfan/fyc/transolver_series/transolver/Airfoil-Design-AirfRANS/metrics/full/Transolver/Transolver",
+  "out": "/home/ycfan/fyc/paper/copit_paper_2/figs/airfrans_copit_vs_transolver_surf.png",
+  "note": "WSS via sim.velocity assignment (airfrans API)"
+}
