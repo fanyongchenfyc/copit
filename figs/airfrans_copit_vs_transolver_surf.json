@@ -14,6 +14,6 @@
   },
   "copit_model": "/home/ycfan/fyc/copit_airfrans/full_result/model.pth",
   "transolver_model": "/home/ycfan/fyc/transolver_series/transolver/Airfoil-Design-AirfRANS/metrics/full/Transolver/Transolver",
-  "out": "/home/ycfan/fyc/paper/copit_paper_2/figs/airfrans_copit_vs_transolver_surf.png",
+  "out": "/home/ycfan/fyc/paper/copit/figs/airfrans_copit_vs_transolver_surf.png",
   "note": "WSS via sim.velocity assignment (airfrans API)"
 }

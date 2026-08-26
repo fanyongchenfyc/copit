@@ -366,14 +366,14 @@ Figure~\ref{fig:pred_true} shows a representative full-data test case for pressu
 
 \begin{figure}[H]
 \centering
-\begin{subfigure}[t]{0.49\linewidth}
+\begin{subfigure}[t]{\linewidth}
   \centering
-  \includegraphics[width=\linewidth,height=0.20\textheight,keepaspectratio]{figs/airfrans_ff_p.png}
+  \includegraphics[width=0.98\linewidth,height=0.28\textheight,keepaspectratio]{figs/airfrans_ff_p.png}
   \caption{Full field}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.49\linewidth}
+\end{subfigure}\\[0.6em]
+\begin{subfigure}[t]{\linewidth}
   \centering
-  \includegraphics[width=\linewidth,height=0.20\textheight,keepaspectratio]{figs/airfrans_nw_p.png}
+  \includegraphics[width=0.98\linewidth,height=0.28\textheight,keepaspectratio]{figs/airfrans_nw_p.png}
   \caption{Near-wall view}
 \end{subfigure}
 \caption{AirfRANS pressure field on a representative full-data test case: CFD reference, CoPiT prediction and absolute error (full field and near-wall zoom).}
@@ -384,7 +384,7 @@ Since $C_{d}$ and $C_{l}$ are obtained by surface integration of pressure and wa
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.96\linewidth,height=0.22\textheight,keepaspectratio]{figs/airfrans_copit_vs_transolver_surf.png}
+\includegraphics[width=0.98\linewidth,height=0.34\textheight,keepaspectratio]{figs/airfrans_copit_vs_transolver_surf.png}
 \caption{Surface pressure and wall shear on a representative AirfRANS test case (\texttt{airFoil2D\_SST\_31.812\_\ldots}). Top: CoPiT; bottom: Transolver. Blue: CFD; orange: prediction. Wall shear is evaluated from the predicted velocity with a no-slip wall condition.}
 \label{fig:airfrans_surf_cmp}
 \end{figure}
@@ -482,14 +482,14 @@ Figure~\ref{fig:force_scatter} compares true and predicted force coefficients on
 
 \begin{figure}[H]
 \centering
-\begin{subfigure}[t]{0.48\linewidth}
+\begin{subfigure}[t]{\linewidth}
   \centering
-  \includegraphics[width=\linewidth,height=0.20\textheight,keepaspectratio]{figs/copit_airfrans_scatter_cd_cl.png}
+  \includegraphics[width=0.92\linewidth,height=0.26\textheight,keepaspectratio]{figs/copit_airfrans_scatter_cd_cl.png}
   \caption{CoPiT}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.48\linewidth}
+\end{subfigure}\\[0.6em]
+\begin{subfigure}[t]{\linewidth}
   \centering
-  \includegraphics[width=\linewidth,height=0.20\textheight,keepaspectratio]{figs/transolver_airfrans_scatter_cd_cl.png}
+  \includegraphics[width=0.92\linewidth,height=0.26\textheight,keepaspectratio]{figs/transolver_airfrans_scatter_cd_cl.png}
   \caption{Transolver}
 \end{subfigure}
 \caption{True versus predicted $C_d$ (left panels) and $C_l$ (right panels) on the AirfRANS full-data test set.}
@@ -524,30 +524,34 @@ Figure~\ref{fig:blendednetpp_cp_cases} shows a representative test case (\texttt
 
 \begin{figure}[H]
 \centering
-\begin{subfigure}[t]{0.19\linewidth}
+\begin{subfigure}[t]{0.32\linewidth}
   \centering
-  \includegraphics[width=\linewidth,height=0.14\textheight,keepaspectratio]{figs/blend_true.png}
+  \includegraphics[width=\linewidth,height=0.18\textheight,keepaspectratio]{figs/blend_true.png}
   \caption*{CFD}
 \end{subfigure}\hfill
-\begin{subfigure}[t]{0.19\linewidth}
+\begin{subfigure}[t]{0.32\linewidth}
   \centering
-  \includegraphics[width=\linewidth,height=0.14\textheight,keepaspectratio]{figs/blend_copit_pred.png}
+  \includegraphics[width=\linewidth,height=0.18\textheight,keepaspectratio]{figs/blend_copit_pred.png}
   \caption*{CoPiT}
 \end{subfigure}\hfill
-\begin{subfigure}[t]{0.19\linewidth}
+\begin{subfigure}[t]{0.32\linewidth}
   \centering
-  \includegraphics[width=\linewidth,height=0.14\textheight,keepaspectratio]{figs/blend_copit_error.png}
-  \caption*{CoPiT err.}
+  \includegraphics[width=\linewidth,height=0.18\textheight,keepaspectratio]{figs/blend_transolver_pred.png}
+  \caption*{Transolver}
+\end{subfigure}\\[0.5em]
+\begin{subfigure}[t]{0.32\linewidth}
+  \centering
+  \phantom{\includegraphics[width=\linewidth,height=0.18\textheight,keepaspectratio]{figs/blend_true.png}}
 \end{subfigure}\hfill
-\begin{subfigure}[t]{0.19\linewidth}
+\begin{subfigure}[t]{0.32\linewidth}
   \centering
-  \includegraphics[width=\linewidth,height=0.14\textheight,keepaspectratio]{figs/blend_transolver_pred.png}
-  \caption*{Trans.}
+  \includegraphics[width=\linewidth,height=0.18\textheight,keepaspectratio]{figs/blend_copit_error.png}
+  \caption*{CoPiT error}
 \end{subfigure}\hfill
-\begin{subfigure}[t]{0.19\linewidth}
+\begin{subfigure}[t]{0.32\linewidth}
   \centering
-  \includegraphics[width=\linewidth,height=0.14\textheight,keepaspectratio]{figs/blend_transolver_error.png}
-  \caption*{Trans.\ err.}
+  \includegraphics[width=\linewidth,height=0.18\textheight,keepaspectratio]{figs/blend_transolver_error.png}
+  \caption*{Transolver error}
 \end{subfigure}
 \caption{BlendedNet++ surface $C_p$ on \texttt{test\_case\_0674}: CFD reference, CoPiT and Transolver predictions, and absolute errors.}
 \label{fig:blendednetpp_cp_cases}
