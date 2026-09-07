@@ -63,6 +63,18 @@ Official split 8992/1000/2498, test $N=2498$, z-score MSE, geom6 point features 
 
 Rounded to four decimals in the paper. Wall-clock from `pitlog.txt` `Time elapsed`: concat 86756 s, hybrid 92698 s, FiLM-only 92823 s.
 
-## Not used as test numbers
+## AirfRANS full-data ablation (Table `tab:ablate_air`)
 
-AirfRANS `experiments/airfrans/runs/{processor_only,decoder_only,widened_concat_seed0_v2}` last-epoch **validation** losses. `matched_pit` and `complete_seed42` were still training when this table was written.
+Same evaluator as CoPiT `scores/eval/score.json` (`evaluate_eval.py`: full 200-case test, all points, surface = wall-pressure MSE, volume = sum of four channel MSEs, forces from pressure + WSS).
+
+| Variant | `score.json` | surf / vol / ρd / ρl |
+|---|---|---|
+| Geometry-only PiT | `experiments/airfrans/runs/matched_pit_seed0/scores/` | 0.859223 / 1.013652 / 0.3449 / 0.7797 |
+| Concatenation only | `experiments/airfrans/runs/concat_pit_from_pit_airfrans/scores/` (weights `pit_airfrans/result/model.pth`) | 0.009882 / 0.035483 / 0.6478 / 0.9995 |
+| Widened concatenation | `experiments/airfrans/runs/widened_concat_seed0_v2/scores/` | 0.008969 / 0.037486 / 0.7104 / 0.9993 |
+| Processor-only FiLM | `experiments/airfrans/runs/processor_only_seed0/scores/` | 0.007099 / 0.037301 / 0.6774 / 0.9991 |
+| Decoder-only FiLM | `experiments/airfrans/runs/decoder_only_seed0/scores/` | 0.002370 / 0.026978 / 0.8273 / 0.9992 |
+| Complete CoPiT seed 0 | `copit_airfrans/copit_airfrans_full/scores/eval/` | 0.004228 / 0.028599 / 0.8388 / 0.9994 |
+| Complete CoPiT seed 42 (text only) | `experiments/airfrans/runs/complete_seed42/scores/` | 0.003268 / 0.030603 / 0.6974 / 0.9993 |
+
+Training-log validation losses are not used in the paper tables.

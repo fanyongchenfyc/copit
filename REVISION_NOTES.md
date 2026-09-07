@@ -25,12 +25,17 @@
 - Inserted A100 training wall-clock table from logs.
 - Did **not** insert AirfRANS ablation validation losses as test numbers.
 
+## 2026-09-07 later
+
+- Inserted AirfRANS full-data test ablation (`tab:ablate_air`) from `evaluate_eval.py` on 200 held-out cases.
+- Decoder-only FiLM has the lowest surface/volume point estimates; complete CoPiT seed 0 has the highest $\rho_d$. Seed 42 complete CoPiT $\rho_d=0.697$ is reported in the text only.
+- Did not mix ablation rows into Table `tab:full`.
+
 ## Experiments still open
 
-1. Unified AirfRANS test evaluation of matched / concat / processor-only / decoder-only / complete / widened variants.
-2. Three random seeds for principal CoPiT vs Transolver comparisons.
-3. MAE/RMSE tables for $C_d$/$C_l$ on all AirfRANS models.
-4. Inference-time and peak-memory protocol (training wall-clock is now in Table `tab:runtime`).
+1. Three random seeds for principal CoPiT vs Transolver comparisons (two complete AirfRANS seeds exist; drag rank differs).
+2. MAE/RMSE tables for $C_d$/$C_l$ on all AirfRANS models.
+3. Inference-time and peak-memory protocol (training wall-clock is in Table `tab:runtime`).
 
 ## Author actions required before submission
 
