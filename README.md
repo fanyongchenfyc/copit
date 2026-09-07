@@ -1,90 +1,42 @@
-# CoPiT manuscript for *Computer Physics Communications* (CPC)
+# CoPiT CPC revision
 
-> **Active working directory (canonical):** all subsequent paper edits happen **only** in  
-> `/home/ycfan/fyc/paper/copit_paper_2`  
-> Do **not** edit `paper/copit/`, `paper/copit_grok/`, or other draft folders unless the user asks.
-
-This folder contains a CPC-formatted manuscript of **CoPiT** (Conditional Position-induced Transformer) for aerodynamic field prediction. It has its own git repository (`.git`).
-
-## Template source
-
-Official CPC / Elsevier materials used:
-
-- CPC LaTeX template (program description style):  
-  <https://legacyfileshare.elsevier.com/promis_misc/CPCtemplateTEupdate.tex>  
-  Local copy: `template/CPC_official_template.tex`
-- Document class: **elsarticle** (Elsevier; required by the CPC template)  
-  Local copy: `elsarticle.cls` (extracted from CTAN `elsarticle` v3.5)  
-  Bibliography styles: `elsarticle-num.bst` (numerical, CPC default)
-- Journal homepage / Guide for Authors:  
-  <https://www.elsevier.com/journals/computer-physics-communications/0010-4655>
-
-### Layout option (important)
-
-| Option | Effect |
-|--------|--------|
-| `preprint,12pt` | Official CPC skeleton **default**. Large type, loose spacing, sparse pages — intended for review, **not** for judging article length. |
-| **`final,3p,times` (current)** | Production-like single-column journal density. Use this when reading/editing. |
-| `final,1p,times` / `5p` | Other Elsevier page models. |
-
-Earlier `main.pdf` hit ~40 pages mainly because of `preprint,12pt` **plus** many figures forced with `height=0.xx\textheight`. That has been fixed.
-
-The previous drafts under `paper/copit/` used the CAS single-column (`cas-sc`) class. This package follows the **official CPC `elsarticle` pipeline** instead.
+This directory is an isolated revision of the CoPiT manuscript for *Computer Physics Communications*. The source drafts under `paper/copit` and `paper/copit_paper_2` are not modified by this revision.
 
 ## Files
 
-| Path | Role |
-|------|------|
-| `main.tex` | Full manuscript |
-| `copit_refs.bib` | BibTeX database |
-| `elsarticle.cls`, `elsarticle-*.bst` | Local Elsevier class + styles |
-| `figs/` | All figures |
-| `main.pdf` | Compiled preprint (generated) |
-| `template/CPC_official_template.tex` | Official CPC skeleton for reference |
+| Path | Purpose |
+|---|---|
+| `main.tex` | Revised manuscript |
+| `copit_refs.bib` | Bibliography database |
+| `figs/` | Figures copied from the source draft |
+| `template/CPC_official_template.tex` | CPC template retained for reference |
+| `REVISION_NOTES.md` | Changes already made and experiments still required |
+| `RESULT_PROVENANCE.md` | Exact source and aggregation of AirfRANS Tables 1--4 |
+| `Makefile` | Local build command |
+
+The full Chinese review and submission checklist is stored at:
+
+```text
+/home/ycfan/fyc/paper/CPC投稿修改意见与修订清单.md
+```
 
 ## Build
 
-With [Tectonic](https://tectonic-typesetting.github.io/) (recommended; pulls packages automatically):
-
 ```bash
-cd paper/copit_grok
-tectonic --keep-logs --print main.tex
+cd /home/ycfan/fyc/paper/copit_revise
+make
 ```
 
-Or with a full TeX Live install:
+The manuscript uses the local Elsevier `elsarticle` class and numerical bibliography style.
 
-```bash
-pdflatex main.tex
-bibtex main
-pdflatex main.tex
-pdflatex main.tex
-```
+## Revision policy
 
-## Manuscript structure (CPC)
+- No result is invented or silently relabelled.
+- Archived AirfRANS `train_loss_*` values are not presented as held-out test errors.
+- Existing single-run results are identified as such.
+- Claims requiring new ablations, multiple random seeds or a common evaluator remain provisional.
+- Author metadata and the public repository/DOI must be verified by the authors before submission.
 
-1. **Front matter** — title, authors, abstract, keywords  
-2. **PROGRAM SUMMARY** — CPiP-style metadata (title, license, language, nature of problem / solution method)  
-3. **Long write-up** — Introduction → Preliminaries → Related work → Method → Experiments → Results (AirfRANS, BlendedNet++, ablations, discussion) → Conclusion  
-4. **Declarations** — competing interest, data availability, CRediT  
-5. **References** — numerical (`elsarticle-num`)
+## Intended CPC article type
 
-## Content basis
-
-Synthesised from materials under `paper/`:
-
-- Latest method/results draft: `paper/copit/nn_pit_film_main.tex`
-- Outline: `paper/CoPiT_PIT_FiLM_论文大纲.md`
-- Experiment checklist: `paper/待做事项.md`
-- Review feedback: `paper/stanford_review.md`
-- BlendedNet++ official-split metrics filled from  
-  `copit_blendednetpp_series/.../official_metricsym6_ep80_ms8000_resumable`  
-  (val MSE **0.0727**, test MSE **0.0678**, best epoch 54)
-
-## Before submission
-
-1. Replace author / affiliation / email placeholders in `main.tex`.  
-2. Set the public code URL (currently `https://github.com/<to-be-added>/CoPiT`).  
-3. Optionally remove the PROGRAM SUMMARY block if submitting purely as a Computational Physics (CP) paper rather than CPiP.  
-4. Upload program archive (source, README, sample I/O) via Editorial Manager if depositing in the CPC Program Library:  
-   <https://www.editorialmanager.com/comphy/>
-5. Verify GIST / GeoABC bibliography entries (marked as provisional in `copit_refs.bib`).
+The present manuscript is structured as a **Computational Physics** paper rather than a **Computer Programs in Physics (CPiP)** submission. A CPiP submission would additionally require the CPC Program Summary and formal program-library package. For either route, a documented and versioned public implementation is strongly recommended and is part of the outstanding submission work.
