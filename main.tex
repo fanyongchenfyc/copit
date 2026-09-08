@@ -82,9 +82,9 @@ neural operator \sep aerodynamic surrogate \sep transformer \sep Feature-wise Li
 %% =====================================================================
 Parametric partial differential equations (PDEs) are central to fluid mechanics and aerospace applications~\cite{anderson2017fundamentals,vinuesa2022cfd_ml}. In particular, high-fidelity Reynolds-averaged Navier--Stokes (RANS) simulations yield velocity, pressure and wall-shear fields that are indispensable for aerodynamic analysis, yet each solve is computationally expensive. Many-query tasks---design exploration, optimisation and multi-condition evaluation---therefore motivate surrogate models that approximate the map from geometry and freestream or design parameters to aerodynamic fields at a fraction of the CFD cost~\cite{brunton2020ml_fluid,karniadakis2021piml}. Figure~\ref{fig:surrogate_pipeline} illustrates this surrogate-assisted workflow.
 
-\begin{figure}[!htbp]
+\begin{figure}[!ht]
 \centering
-\includegraphics[width=0.92\linewidth,height=0.27\textheight,keepaspectratio]{figs/fig1_v2.png}
+\includegraphics[width=\linewidth,keepaspectratio]{figs/fig1_v2.png}
 \caption{Schematic of a surrogate-assisted aerodynamic design workflow. Offline CFD generates training data; a learned operator then provides approximate evaluations during design exploration. Latency and uncertainty annotations in the figure are illustrative and are not measurements reported in this study.}
 \label{fig:surrogate_pipeline}
 \end{figure}
@@ -242,26 +242,17 @@ Relative to PiT, CoPiT adds multi-stage FiLM generators driven by the global con
 
 \subsection{Overview}
 \label{sec:overview}
+Figure~\ref{fig:copit_arch} summarises CoPiT. Given an input mesh with geometric features, a target mesh and a condition vector $\mathbf{c}$, the network (i)~encodes the input onto a latent mesh, (ii)~refines latent features with $L$ processor blocks, each followed by FiLM, and (iii)~decodes to the target mesh with a final FiLM stage before the readout. The same skeleton is used for AirfRANS and BlendedNet++; only dimensions, the content of $\mathbf{c}$ and auxiliary decoder channels change (Section~\ref{sec:instantiate}).
 
-
-\begin{figure}[H]
+\begin{figure}[!ht]
 \centering
-\includegraphics[width=\linewidth,height=0.42\textheight,keepaspectratio]{figs/copit_v2.png}
+\includegraphics[width=0.86\linewidth,keepaspectratio]{figs/copit_v2.png}
 \caption{Overview of CoPiT. An encoder maps the input mesh to a latent mesh; $L$ processor blocks apply position-attention, instance normalisation and FiLM; a decoder with a further FiLM stage reads out the predicted field. A FiLM generator maps the global condition $\mathbf{c}$ to channel-wise modulation parameters.}
 \label{fig:copit_arch}
 \end{figure}
-Figure~\ref{fig:copit_arch} summarises CoPiT. Given an input mesh with geometric features, a target mesh and a condition vector $\mathbf{c}$, the network (i)~encodes the input onto a latent mesh, (ii)~refines latent features with $L$ processor blocks, each followed by FiLM, and (iii)~decodes to the target mesh with a final FiLM stage before the readout. The same skeleton is used for AirfRANS and BlendedNet++; only dimensions, the content of $\mathbf{c}$ and auxiliary decoder channels change (Section~\ref{sec:instantiate}).
 
 \subsection{Multi-stage FiLM conditioning}
 \label{sec:film}
-
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.88\linewidth,height=0.32\textheight,keepaspectratio]{figs/FiLM_diagram.pdf}
-\caption{Feature-wise Linear Modulation (FiLM)~\cite{perez2018film}. A global condition vector $\mathbf{c}$ is mapped to channel-wise scale $\gamma(\mathbf{c})$ and shift $\beta(\mathbf{c})$, which modulate instance-normalised features.}
-\label{fig:film}
-\end{figure}
 Let $\mathbf{h}\in\mathbb{R}^{D}$ be a hidden feature at a mesh (or latent) point after instance normalisation~\cite{ulyanov2016instance}. A FiLM generator $g_{\theta}:\mathbb{R}^{d_{c}}\to\mathbb{R}^{2D}$ maps $\mathbf{c}$ to scale and shift vectors $(\gamma(\mathbf{c}),\beta(\mathbf{c}))$ and applies
 \begin{equation}
   \tilde{\mathbf{h}}
@@ -269,6 +260,12 @@ Let $\mathbf{h}\in\mathbb{R}^{D}$ be a hidden feature at a mesh (or latent) poin
   \gamma(\mathbf{c})\odot\mathbf{h}+\beta(\mathbf{c}).
   \label{eq:film}
 \end{equation}
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.82\linewidth,keepaspectratio]{figs/FiLM_diagram.pdf}
+\caption{Feature-wise Linear Modulation (FiLM)~\cite{perez2018film}. A global condition vector $\mathbf{c}$ is mapped to channel-wise scale $\gamma(\mathbf{c})$ and shift $\beta(\mathbf{c})$, which modulate instance-normalised features.}
+\label{fig:film}
+\end{figure}
 Figure~\ref{fig:film} illustrates the mechanism~\cite{perez2018film}. CoPiT uses two generators:
 \begin{itemize}
 \item \emph{Processor FiLM}: outputs $\{(\gamma_{\ell},\beta_{\ell})\}_{\ell=1}^{L}$ for all processor blocks (tensor size proportional to $L(1+H)D_{\mathrm{hid}}$);
