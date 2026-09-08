@@ -55,17 +55,19 @@
 
 \author[polyu]{Yongchen Fan}
 \ead{23040781r@connect.polyu.hk}
-\author[polyu]{Zhonghua Qiao\corref{cor1}}
+\author[polyu]{Zhonghua Qiao}%\corref{cor1}
 \author[hkust]{Junfeng Chen}
 \author[sustech]{Kailiang Wu}
 
-\cortext[cor1]{Corresponding author}
+% \cortext[cor1]{Corresponding author}
 \address[polyu]{Department of Applied Mathematics, The Hong Kong Polytechnic University, Hung Hom, Kowloon, Hong Kong, China}
 \address[hkust]{Department of Mathematics, The Hong Kong University of Science and Technology, Clear Water Bay, Kowloon, Hong Kong, China}
 \address[sustech]{Department of Mathematics, Southern University of Science and Technology, Shenzhen 518055, China}
 
 \begin{abstract}
-High-fidelity Reynolds-averaged Navier--Stokes (RANS) simulations remain expensive for many-query aerodynamic design. Neural operators provide efficient surrogates on irregular meshes, but operating and design parameters are commonly fused with pointwise inputs only once, leaving their influence on deeper geometric representations implicit. We propose CoPiT (\textbf{Co}nditional \textbf{P}osition-induced \textbf{T}ransformer), which combines a position-induced Transformer (PiT) backbone with multi-stage feature-wise linear modulation (FiLM) driven by a global condition vector. FiLM is applied after instance normalisation in the processor and decoder. Because this conditioning is pointwise, it leaves the positional-attention kernel unchanged; this observation concerns the kernel itself and does not, by itself, establish discretisation consistency of the complete network. We study CoPiT on AirfRANS, covering full-data, scarce-data and extrapolation splits, and on the three-dimensional BlendedNet++ surface-regression benchmark. On the AirfRANS full-data test set, the reported complete CoPiT configuration attains the lowest surface and volume losses among the compared published baselines and a drag Spearman correlation of $0.839$. A matched ablation shows that decoder-only FiLM can attain still lower field losses, and that drag ranking is seed-sensitive; relative performance is less uniform under scarce-data and extrapolation settings. On BlendedNet++, CoPiT obtains the lowest normalised test-MSE point estimate among the reimplemented baselines, and FiLM-only conditioning outperforms input concatenation and a hybrid broadcast-plus-FiLM variant. All scores are single-run point estimates.
+High-fidelity Reynolds-averaged Navier--Stokes (RANS) simulations remain the standard tool for aerodynamic analysis, yet each solve on an unstructured mesh is computationally expensive. Design exploration, optimisation and multi-condition evaluation therefore repeat similar CFD solves many times, at a cost that quickly becomes prohibitive. Neural operators provide mesh-flexible surrogates for the map from geometry and operating conditions to flow fields. In existing architectures, however, global parameters such as the freestream state and design variables are typically concatenated with pointwise inputs, so their influence on deeper geometric representations remains implicit.
+
+This paper proposes CoPiT, a \textbf{Co}nditional \textbf{P}osition-induced \textbf{T}ransformer for aerodynamic field prediction on irregular meshes. CoPiT retains a position-induced Transformer as the geometric backbone and injects a global condition vector by Feature-wise Linear Modulation (FiLM), thereby separating spatial aggregation from parametric response. We evaluate the model on two-dimensional AirfRANS airfoil fields, including scarce-data and extrapolation regimes, and on three-dimensional BlendedNet++ blended-wing-body surfaces. Explicit FiLM conditioning improves over input concatenation, while the preferred placement of FiLM is task-dependent. CoPiT thus provides a practical operator-learning surrogate for parametric aerodynamics on unstructured meshes.
 \end{abstract}
 
 \begin{keyword}
@@ -242,11 +244,10 @@ Relative to PiT, CoPiT adds multi-stage FiLM generators driven by the global con
 \label{sec:overview}
 
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
-% Architecture drawing: replace figs/copit.png in place when a revised figure is ready.
-\includegraphics[width=0.92\linewidth,height=0.26\textheight,keepaspectratio]{figs/copit.png}
-\caption{Overview of CoPiT: a PiT encode--process--decode backbone with multi-stage FiLM conditioning from the global parameter vector.}
+\includegraphics[width=\linewidth,height=0.42\textheight,keepaspectratio]{figs/copit_v2.png}
+\caption{Overview of CoPiT. An encoder maps the input mesh to a latent mesh; $L$ processor blocks apply position-attention, instance normalisation and FiLM; a decoder with a further FiLM stage reads out the predicted field. A FiLM generator maps the global condition $\mathbf{c}$ to channel-wise modulation parameters.}
 \label{fig:copit_arch}
 \end{figure}
 Figure~\ref{fig:copit_arch} summarises CoPiT. Given an input mesh with geometric features, a target mesh and a condition vector $\mathbf{c}$, the network (i)~encodes the input onto a latent mesh, (ii)~refines latent features with $L$ processor blocks, each followed by FiLM, and (iii)~decodes to the target mesh with a final FiLM stage before the readout. The same skeleton is used for AirfRANS and BlendedNet++; only dimensions, the content of $\mathbf{c}$ and auxiliary decoder channels change (Section~\ref{sec:instantiate}).
@@ -255,11 +256,10 @@ Figure~\ref{fig:copit_arch} summarises CoPiT. Given an input mesh with geometric
 \label{sec:film}
 
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
-% FiLM schematic: replace figs/film.png in place when a revised figure is ready.
-\includegraphics[width=0.32\linewidth,height=0.22\textheight,keepaspectratio]{figs/film.png}
-\caption{Feature-wise Linear Modulation (FiLM)~\cite{perez2018film}. A global condition vector produces channel-wise scale $\gamma$ and shift $\beta$, applied as an affine transform to intermediate features.}
+\includegraphics[width=0.88\linewidth,height=0.32\textheight,keepaspectratio]{figs/FiLM_diagram.pdf}
+\caption{Feature-wise Linear Modulation (FiLM)~\cite{perez2018film}. A global condition vector $\mathbf{c}$ is mapped to channel-wise scale $\gamma(\mathbf{c})$ and shift $\beta(\mathbf{c})$, which modulate instance-normalised features.}
 \label{fig:film}
 \end{figure}
 Let $\mathbf{h}\in\mathbb{R}^{D}$ be a hidden feature at a mesh (or latent) point after instance normalisation~\cite{ulyanov2016instance}. A FiLM generator $g_{\theta}:\mathbb{R}^{d_{c}}\to\mathbb{R}^{2D}$ maps $\mathbf{c}$ to scale and shift vectors $(\gamma(\mathbf{c}),\beta(\mathbf{c}))$ and applies

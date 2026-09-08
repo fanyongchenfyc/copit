@@ -40,7 +40,8 @@
 ## Author actions required before submission
 
 - Confirm the PolyU student email (`23040781r@connect.polyu.hk`). Add the corresponding-author email only after Prof.\ Qiao confirms it.
-- Replace `figs/copit.png` and `figs/film.png` with the revised architecture and FiLM drawings (paths already pointed at these files).
+- Architecture and FiLM figures now use `figs/copit_v2.png` and `figs/FiLM_diagram.pdf`.
+- Corresponding-author mark (`\\corref`) is commented out pending confirmation.
 - Add a Zenodo DOI if a frozen archive is minted at submission.
 - Optional: three random seeds for the principal CoPiT vs Transolver comparisons; inference-time / peak-memory table.
 - Graphical abstract only if the CPC submission system requests one.
