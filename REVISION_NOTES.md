@@ -39,8 +39,8 @@
 
 ## Author actions required before submission
 
-- Confirm author names, order, affiliations, corresponding author and email.
-- Replace the repository/archive placeholder statement with working URLs and a DOI.
-- Add funding and acknowledgements where applicable.
-- Generate Highlights, cover letter and any graphical abstract required by the current CPC submission system.
-- Remove all provisional language after the missing experiments have been inserted and independently checked.
+- Confirm the PolyU student email (`23040781r@connect.polyu.hk`) and corresponding-author email (`zhonghua.qiao@polyu.edu.hk`).
+- Replace `figs/copit.png` and `figs/film.png` with the revised architecture and FiLM drawings (paths already pointed at these files).
+- Add a Zenodo DOI if a frozen archive is minted at submission.
+- Optional: three random seeds for the principal CoPiT vs Transolver comparisons; inference-time / peak-memory table.
+- Graphical abstract only if the CPC submission system requests one.

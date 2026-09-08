@@ -1,5 +1,5 @@
-# Build CoPiT CPC manuscript
-# Prefer tectonic (self-contained); fall back to classic latexmk/pdflatex.
+# Build CoPiT CPC manuscript (run from this directory).
+# Prefer tectonic (self-contained); fall back to classic pdflatex+bibtex.
 
 TEX = main.tex
 PDF = main.pdf

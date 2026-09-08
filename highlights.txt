@@ -1,0 +1,5 @@
+CoPiT conditions a PiT backbone with multi-stage FiLM on irregular meshes.
+Pointwise FiLM leaves positional-attention kernels unchanged.
+FiLM outperforms concatenation; preferred placement is task-dependent.
+Decoder-only FiLM can beat complete CoPiT on AirfRANS field error.
+Drag ranking improves over Transolver but is seed-sensitive.

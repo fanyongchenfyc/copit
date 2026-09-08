@@ -1,42 +1,36 @@
-# CoPiT CPC revision
+# CoPiT
 
-This directory is an isolated revision of the CoPiT manuscript for *Computer Physics Communications*. The source drafts under `paper/copit` and `paper/copit_paper_2` are not modified by this revision.
+**CoPiT** (Conditional Position-induced Transformer) is a neural operator for aerodynamic field prediction on irregular meshes. It combines a Position-induced Transformer (PiT) backbone with multi-stage Feature-wise Linear Modulation (FiLM).
 
-## Files
+This repository holds the manuscript submitted to *Computer Physics Communications*, together with figure assets and bibliography.
 
-| Path | Purpose |
-|---|---|
-| `main.tex` | Revised manuscript |
-| `copit_refs.bib` | Bibliography database |
-| `figs/` | Figures copied from the source draft |
-| `template/CPC_official_template.tex` | CPC template retained for reference |
-| `REVISION_NOTES.md` | Changes already made and experiments still required |
-| `RESULT_PROVENANCE.md` | Exact source and aggregation of AirfRANS Tables 1--4 |
-| `Makefile` | Local build command |
+- Paper: `main.tex`
+- Preprint build: `make` (requires [Tectonic](https://tectonic-typesetting.github.io/) or a TeX Live `pdflatex`+`bibtex` toolchain)
+- Datasets: [AirfRANS](https://github.com/Extrality/AirfRANS), [BlendedNet++](https://arxiv.org/abs/2512.03280)
 
-The full Chinese review and submission checklist is stored at:
-
-```text
-/home/ycfan/fyc/paper/CPC投稿修改意见与修订清单.md
-```
-
-## Build
+## Build the manuscript
 
 ```bash
-cd /home/ycfan/fyc/paper/copit_revise
-make
+make          # tectonic
+make latex    # pdflatex + bibtex fallback
 ```
 
-The manuscript uses the local Elsevier `elsarticle` class and numerical bibliography style.
+## Citation
 
-## Revision policy
+```bibtex
+@article{fan2026copit,
+  title   = {CoPiT: A conditional position-induced Transformer for aerodynamic field prediction on irregular meshes},
+  author  = {Fan, Yongchen and Qiao, Zhonghua and Chen, Junfeng and Wu, Kailiang},
+  journal = {Computer Physics Communications},
+  note    = {Manuscript},
+  year    = {2026}
+}
+```
 
-- No result is invented or silently relabelled.
-- Archived AirfRANS `train_loss_*` values are not presented as held-out test errors.
-- Existing single-run results are identified as such.
-- Claims requiring new ablations, multiple random seeds or a common evaluator remain provisional.
-- Author metadata and the public repository/DOI must be verified by the authors before submission.
+## Licence
 
-## Intended CPC article type
+The source code and manuscript files in this repository are released under the MIT Licence (see `LICENSE`). Dataset licences remain those of AirfRANS and BlendedNet++.
 
-The present manuscript is structured as a **Computational Physics** paper rather than a **Computer Programs in Physics (CPiP)** submission. A CPiP submission would additionally require the CPC Program Summary and formal program-library package. For either route, a documented and versioned public implementation is strongly recommended and is part of the outstanding submission work.
+## Contact
+
+Corresponding author: Zhonghua Qiao (`zhonghua.qiao@polyu.edu.hk`).

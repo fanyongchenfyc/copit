@@ -75,6 +75,6 @@ Same evaluator as CoPiT `scores/eval/score.json` (`evaluate_eval.py`: full 200-c
 | Processor-only FiLM | `experiments/airfrans/runs/processor_only_seed0/scores/` | 0.007099 / 0.037301 / 0.6774 / 0.9991 |
 | Decoder-only FiLM | `experiments/airfrans/runs/decoder_only_seed0/scores/` | 0.002370 / 0.026978 / 0.8273 / 0.9992 |
 | Complete CoPiT seed 0 | `copit_airfrans/copit_airfrans_full/scores/eval/` | 0.004228 / 0.028599 / 0.8388 / 0.9994 |
-| Complete CoPiT seed 42 (text only) | `experiments/airfrans/runs/complete_seed42/scores/` | 0.003268 / 0.030603 / 0.6974 / 0.9993 |
+| Complete CoPiT seed 42 (Table `tab:ablate_air`) | `experiments/airfrans/runs/complete_seed42/scores/` | 0.003268 / 0.030603 / 0.6974 / 0.9993 |
 
 Training-log validation losses are not used in the paper tables.
