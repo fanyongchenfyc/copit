@@ -65,13 +65,11 @@
 \address[sustech]{Department of Mathematics, Southern University of Science and Technology, Shenzhen 518055, China}
 
 \begin{abstract}
-High-fidelity Reynolds-averaged Navier--Stokes (RANS) simulations remain the standard tool for aerodynamic analysis, yet each solve on an unstructured mesh is computationally expensive. Design exploration, optimisation and multi-condition evaluation therefore repeat similar CFD solves many times, at a cost that quickly becomes prohibitive. Neural operators provide mesh-flexible surrogates for the map from geometry and operating conditions to flow fields. In existing architectures, however, global parameters such as the freestream state and design variables are typically concatenated with pointwise inputs, so their influence on deeper geometric representations remains implicit.
-
-This paper proposes CoPiT, a \textbf{Co}nditional \textbf{P}osition-induced \textbf{T}ransformer for aerodynamic field prediction on irregular meshes. CoPiT retains a position-induced Transformer as the geometric backbone and injects a global condition vector by Feature-wise Linear Modulation (FiLM), thereby separating spatial aggregation from parametric response. We evaluate the model on two-dimensional AirfRANS airfoil fields, including scarce-data and extrapolation regimes, and on three-dimensional BlendedNet++ blended-wing-body surfaces. Explicit FiLM conditioning improves over input concatenation, while the preferred placement of FiLM is task-dependent. CoPiT thus provides a practical operator-learning surrogate for parametric aerodynamics on unstructured meshes.
+High-fidelity Reynolds-averaged Navier--Stokes (RANS) simulations remain the standard tool for aerodynamic analysis, yet each solve on an unstructured mesh is computationally expensive, and many-query tasks such as design exploration, optimisation and multi-condition evaluation therefore become prohibitive. Neural operators provide mesh-flexible surrogates for the map from geometry and operating conditions to flow fields; in existing architectures, however, global parameters such as the freestream state and design variables are typically concatenated with pointwise inputs, so their influence on deeper geometric representations remains implicit. This paper proposes CoPiT, a \textbf{Co}nditional \textbf{P}osition-induced \textbf{T}ransformer that retains a position-induced Transformer as the geometric backbone and injects a global condition vector by feature-wise linear modulation (FiLM), thereby separating spatial aggregation from parametric response. The model is evaluated on two-dimensional AirfRANS airfoil fields, including scarce-data and extrapolation regimes, and on three-dimensional BlendedNet++ blended-wing-body surfaces. Explicit FiLM conditioning improves over input concatenation, while the preferred placement of FiLM is task-dependent. CoPiT thus provides a practical operator-learning surrogate for parametric aerodynamics on unstructured meshes.
 \end{abstract}
 
 \begin{keyword}
-neural operator \sep aerodynamic surrogate \sep transformer \sep Feature-wise Linear Modulation
+neural operator \sep aerodynamic surrogate \sep unstructured mesh \sep FiLM
 \end{keyword}
 
 \end{frontmatter}
@@ -121,8 +119,6 @@ Data-driven aerodynamic surrogates range from convolutional predictors of airfoi
 \section{Preliminaries}
 \label{sec:prelim}
 %% =====================================================================
-We first state the operator-learning setting and then summarise position-induced attention as developed for the Position-induced Transformer (PiT)~\cite{chen2024pit}.
-
 \subsection{Operator learning}
 \label{sec:op_learn}
 Consider a parametric PDE of the form
@@ -238,11 +234,9 @@ In the PiT architecture~\cite{chen2024pit}, position-attention is organised in a
 \section{CoPiT: conditional position-induced Transformer}
 \label{sec:method}
 %% =====================================================================
-Relative to PiT, CoPiT adds multi-stage FiLM generators driven by the global condition $\mathbf{c}$, inserted in the processor and the decoder. Position attention, the latent mesh and the encode--process--decode skeleton follow Section~\ref{sec:prelim}.
-
 \subsection{Overview}
 \label{sec:overview}
-Figure~\ref{fig:copit_arch} summarises CoPiT. Given an input mesh with geometric features, a target mesh and a condition vector $\mathbf{c}$, the network (i)~encodes the input onto a latent mesh, (ii)~refines latent features with $L$ processor blocks, each followed by FiLM, and (iii)~decodes to the target mesh with a final FiLM stage before the readout. The same skeleton is used for AirfRANS and BlendedNet++; only dimensions, the content of $\mathbf{c}$ and auxiliary decoder channels change (Section~\ref{sec:instantiate}).
+The architecture is summarised in Fig.~\ref{fig:copit_arch}. Given an input mesh with geometric features, a target mesh and a condition vector $\mathbf{c}$, the network (i)~encodes the input onto a latent mesh, (ii)~refines latent features with $L$ processor blocks, each followed by FiLM, and (iii)~decodes to the target mesh with a final FiLM stage before the readout. The same skeleton is used for AirfRANS and BlendedNet++; dataset-specific inputs, the content of $\mathbf{c}$ and auxiliary decoder channels are stated in Section~\ref{sec:setup}.
 
 \begin{figure}[!ht]
 \centering
@@ -331,7 +325,7 @@ Linear layers use Kaiming initialisation~\cite{he2016resnet} and GELU activation
 
 \subsection{Preservation of the positional kernel under FiLM}
 \label{sec:consistency}
-The position-attention layer analysed in PiT converges under mesh refinement to a kernel integral operator under the assumptions stated in~\cite{chen2024pit}. FiLM~\eqref{eq:film} is a pointwise map and does not alter the distance-based attention weights. More precisely, let $\mathcal{F}_{\lambda}^{n}$ denote a discrete positional-attention operator on mesh $X_n$, let $\mathcal{F}_{\lambda}$ denote its limiting operator, and let $\Phi_{\mathbf{c}}(z)=\gamma(\mathbf{c})\odot z+\beta(\mathbf{c})$ for a fixed condition $\mathbf{c}$. If $\|\gamma(\mathbf{c})\|_{\infty}<\infty$, then
+The position-attention layer analysed in PiT converges under mesh refinement to a kernel integral operator under the assumptions stated in~\cite{chen2024pit}. FiLM~\eqref{eq:film} is a pointwise map and does not alter the distance-based attention weights. The following elementary estimate records this fact. Let $\mathcal{F}_{\lambda}^{n}$ denote a discrete positional-attention operator on mesh $X_n$, let $\mathcal{F}_{\lambda}$ denote its limiting operator, and let $\Phi_{\mathbf{c}}(z)=\gamma(\mathbf{c})\odot z+\beta(\mathbf{c})$ for a fixed condition $\mathbf{c}$. If $\|\gamma(\mathbf{c})\|_{\infty}<\infty$, then
 \begin{equation}
   \bigl\|\Phi_{\mathbf{c}}(\mathcal{F}_{\lambda}^{n}(U^{n}))
         -\Phi_{\mathbf{c}}(\mathcal{F}_{\lambda}(U))\bigr\|
@@ -341,12 +335,6 @@ The position-attention layer analysed in PiT converges under mesh refinement to 
   \label{eq:composed_convergence}
 \end{equation}
 Consequently, bounded FiLM preserves convergence of an already convergent attention output at fixed $\mathbf{c}$. This is a layer-level observation: it does not constitute a complete discretisation-consistency proof for the implemented network, which also contains instance normalisation, nonlinear multilayer perceptrons, latent-mesh selection and auxiliary decoder features. Establishing such a result for the complete composition would require additional assumptions on these components.
-
-\subsection{Task instantiations}
-\label{sec:instantiate}
-\textbf{AirfRANS.} Spatial dimension $d=2$. In the default configuration used in our experiments, the encoder receives four geometric channels (surface coordinates and unit normals). The freestream state $\mathbf{c}=(U_{\infty},\alpha)$ enters only through the FiLM generators and is not concatenated into the encoder features. The network predicts $(v_{x},v_{y},p,\nu_{t})$ on the CFD mesh. The decoder is conditioned on the signed distance to the wall (SDF) via a small auxiliary MLP that is merged with the cross-attention features before the decoder FiLM and readout. Encoder and decoder locality use $\tau=0.01$; processor self-attention uses $\tau=1$. All three stages employ the same quantile-masked position-induced attention as PiT.
-
-\textbf{BlendedNet++.} Spatial dimension $d=3$. The reported CoPiT model predicts three surface quantities, $(C_{p},C_{f,x},C_{f,z})$. Pointwise encoder inputs are six geometric channels (coordinates and unit normals). The 12-dimensional design/flight vector $\mathbf{c}$ drives processor and decoder FiLM only. Pairwise distances are Euclidean squared distances in ambient $\mathbb{R}^{3}$ with the same quantile locality as on AirfRANS. The training loss is the mean MSE over the three reported channels. The latent mesh retains 10\% of the surface points by Z-order sampling. On this dataset the FiLM scale is implemented as $1+\gamma$, so that a vanishing generator output recovers the identity; AirfRANS uses~\eqref{eq:film} directly. A hybrid variant that additionally broadcasts $\mathbf{c}$ into the pointwise encoding is evaluated only as an ablation (Section~\ref{sec:blended}).
 
 
 %% =====================================================================
@@ -358,12 +346,12 @@ We evaluate CoPiT on AirfRANS and BlendedNet++ and compare it with graph- and tr
 \label{sec:setup}
 
 \subsubsection{Datasets and metrics}
-\textbf{AirfRANS}~\cite{bonnet2022airfrans} provides two-dimensional RANS simulations around NACA-family airfoils under freestream states $(U_{\infty},\alpha)$, with unstructured meshes of order $1.8\times 10^{5}$ points. We consider full data (800/200 train/test), scarce data (200/200), Reynolds-number extrapolation and angle-of-attack extrapolation. Held-out field errors are computed in the normalised space. The volume loss is the sum of the pointwise MSEs of $(v_x,v_y,p,\nu_t)$, averaged first over volume points of each test case and then over test cases. Because no-slip velocity and turbulent viscosity are prescribed at the wall in this benchmark, the reported surface loss is the corresponding wall-pressure MSE. Force coefficients are obtained by surface integration of pressure and wall shear using the same sampling, gradient and quadrature implementation for every model. We report Spearman correlations of drag and lift, denoted by $\rho_d$ and $\rho_l$; absolute and relative load errors are discussed separately.
+\textbf{AirfRANS}~\cite{bonnet2022airfrans} provides two-dimensional RANS simulations around NACA-family airfoils under freestream states $(U_{\infty},\alpha)$, with unstructured meshes of order $1.8\times 10^{5}$ points. We consider full data (800/200 train/test), scarce data (200/200), Reynolds-number extrapolation and angle-of-attack extrapolation. The encoder receives four geometric channels (coordinates and unit normals); $\mathbf{c}=(U_{\infty},\alpha)$ enters only through the FiLM generators. The network predicts $(v_{x},v_{y},p,\nu_{t})$ on the CFD mesh. The decoder is additionally conditioned on the signed distance to the wall (SDF) via a small auxiliary MLP, as in~\eqref{eq:dec2}. Held-out field errors are computed in the normalised space. The volume loss is the sum of the pointwise MSEs of $(v_x,v_y,p,\nu_t)$, averaged first over volume points of each test case and then over test cases. Because no-slip velocity and turbulent viscosity are prescribed at the wall in this benchmark, the reported surface loss is the corresponding wall-pressure MSE. Force coefficients are obtained by surface integration of pressure and wall shear using the same sampling, gradient and quadrature implementation for every model. We report Spearman correlations of drag and lift, denoted by $\rho_d$ and $\rho_l$; absolute and relative load errors are discussed separately.
 
-\textbf{BlendedNet++}~\cite{sung2025blendednetpp} is a large-scale blended-wing-body (BWB) surface-flow benchmark. We adopt the official forward split with 8\,992 / 1\,000 / 2\,498 train/validation/test cases and predict surface $(C_{p},C_{f,x},C_{f,z})$ under per-channel $z$-score normalisation fitted on the training set only. Training uses 8\,000 randomly sampled surface points per case per step; test metrics are computed on the full surface. We report the overall mean MSE and a per-channel breakdown in the same normalised space as the training loss.
+\textbf{BlendedNet++}~\cite{sung2025blendednetpp} is a large-scale blended-wing-body (BWB) surface-flow benchmark. We adopt the official forward split with 8\,992 / 1\,000 / 2\,498 train/validation/test cases and predict surface $(C_{p},C_{f,x},C_{f,z})$. Pointwise encoder inputs are six geometric channels (coordinates and unit normals); the 12-dimensional design/flight vector $\mathbf{c}$ drives processor and decoder FiLM only. Pairwise distances are Euclidean squared distances in ambient $\mathbb{R}^{3}$. The latent mesh retains 10\% of the surface points by Z-order sampling. On this dataset the FiLM scale is implemented as $1+\gamma$, so that a vanishing generator output recovers the identity; AirfRANS uses~\eqref{eq:film} directly. A hybrid variant that additionally broadcasts $\mathbf{c}$ into the pointwise encoding is evaluated only as an ablation (Section~\ref{sec:blended}). Targets are $z$-score normalised using training-set statistics only. Training uses 8\,000 randomly sampled surface points per case per step; test metrics are computed on the full surface as the mean MSE over the three channels, with a per-channel breakdown in the same normalised space.
 
 \subsubsection{Implementation}
-On AirfRANS, the latent mesh has 7\,000 points, four processor blocks, hidden width 256 and one attention head. Encoder locality is $\tau=0.01$ and processor locality is $\tau=1$; the decoder uses the same quantile-masked projection as the encoder. Training minimises a surface-weighted mean-squared error with Adam~\cite{kingma2015adam}, initial learning rate $10^{-3}$ and cosine annealing~\cite{loshchilov2017cosine} for 398 epochs. The reported AirfRANS scores use the last-epoch checkpoint: the training script writes a single \texttt{model.pth} at the end of the run. On BlendedNet++, we use hidden width 256, one attention head, four blocks, encoder/decoder locality $\tau=0.01$, Euclidean positional distances, AdamW with learning rate $5\times 10^{-4}$, weight decay $10^{-5}$, a one-cycle schedule and gradient clipping at unit norm, for 100 epochs. For BlendedNet++, the checkpoint with the lowest validation loss is evaluated once on the test set. Unless stated otherwise, scores are single-run point estimates.
+On AirfRANS, the latent mesh has 7\,000 points, four processor blocks, hidden width 256 and one attention head. Encoder and decoder locality are $\tau=0.01$; processor self-attention uses $\tau=1$. All three stages employ the same quantile-masked position-induced attention as PiT. Training minimises a surface-weighted mean-squared error with Adam~\cite{kingma2015adam}, initial learning rate $10^{-3}$ and cosine annealing~\cite{loshchilov2017cosine} for 398 epochs. The reported AirfRANS scores use the last-epoch checkpoint: the training script writes a single \texttt{model.pth} at the end of the run. On BlendedNet++, we use hidden width 256, one attention head, four blocks, encoder/decoder locality $\tau=0.01$, AdamW with learning rate $5\times 10^{-4}$, weight decay $10^{-5}$, a one-cycle schedule and gradient clipping at unit norm, for 100 epochs. For BlendedNet++, the checkpoint with the lowest validation loss is evaluated once on the test set. Unless stated otherwise, scores are single-run point estimates.
 
 \subsubsection{Baselines}
 AirfRANS baselines are MLP~\cite{goodfellow2016deep}, GraphSAGE~\cite{hamilton2017inductive}, PointNet~\cite{qi2017pointnet}, Graph U-Net~\cite{yue2018graph} and Transolver~\cite{wu2024transolver}. On the full-data split we further evaluate matched PiT variants that change only how $(U_{\infty},\alpha)$ is injected: no global condition, input concatenation, processor-only FiLM, decoder-only FiLM, a width-matched concatenation model, and complete CoPiT. BlendedNet++ baselines are reimplemented using the same split, training-set normalisation and surface-MSE definition: PointNet, GraphSAGE, Graph U-Net, GNOT~\cite{hao2023gnot}, Transolver and FiLMNet (FiLM without position-induced attention). On BlendedNet++ we additionally compare concatenation-only and hybrid (broadcast globals plus FiLM) variants of the same PiT backbone.
@@ -371,7 +359,7 @@ AirfRANS baselines are MLP~\cite{goodfellow2016deep}, GraphSAGE~\cite{hamilton20
 \subsection{AirfRANS results}
 \label{sec:airfrans}
 
-Figure~\ref{fig:pred_true} shows one full-data test case for pressure. On this case, the predicted field recovers the stagnation region, suction peak and pressure recovery, while residuals are concentrated near the wall and in the near wake. This example is used to visualise spatial error structure rather than to estimate dataset-level accuracy.
+Pressure on one full-data test case is shown in Fig.~\ref{fig:pred_true}. The predicted field recovers the stagnation region, suction peak and pressure recovery, while residuals are concentrated near the wall and in the near wake. The example is used to visualise spatial error structure rather than to estimate dataset-level accuracy.
 
 \begin{figure}[H]
 \centering
@@ -490,13 +478,12 @@ For the full-data CoPiT run, the mean relative errors of $C_d$ and $C_l$ are 0.4
 \toprule
  & MLP & GraphSAGE & PointNet & Graph U-Net & Transolver & CoPiT \\
 \midrule
-Params & 19{,}988 & 29{,}204 & 75{,}244 & 65{,}820 & 5{,}996{,}868 & 1{,}494{,}538$^{\ast}$ \\
+Params & 19{,}988 & 29{,}204 & 75{,}244 & 65{,}820 & 5{,}996{,}868 & 1{,}494{,}538 \\
 \bottomrule
-\end{tabular}\\[0.4em]
-{\footnotesize $^{\ast}$Count from the reported AirfRANS checkpoints. A later reimplementation of the same configuration counted $1{,}494{,}026$.}
+\end{tabular}
 \end{table}
 
-Figure~\ref{fig:force_scatter} compares true and predicted force coefficients on the full-data test set (200 cases) under the same integration protocol. CoPiT yields $\rho_{d}\approx 0.839$ and $\rho_{l}\approx 0.999$, whereas Transolver reaches $\rho_{d}\approx 0.145$ and $\rho_{l}\approx 0.998$: lift ranking is strong for both models, while drag ranking is substantially improved by CoPiT.
+Predicted and reference force coefficients on the 200-case full-data test set are compared in Fig.~\ref{fig:force_scatter} under the same integration protocol. CoPiT yields $\rho_{d}\approx 0.839$ and $\rho_{l}\approx 0.999$, whereas Transolver reaches $\rho_{d}\approx 0.145$ and $\rho_{l}\approx 0.998$: lift ranking is strong for both models, while drag ranking is substantially improved by CoPiT.
 
 \begin{figure}[H]
 \centering
@@ -514,7 +501,7 @@ Figure~\ref{fig:force_scatter} compares true and predicted force coefficients on
 \label{fig:force_scatter}
 \end{figure}
 
-Table~\ref{tab:ablate_air} reports the same full-data test protocol as Table~\ref{tab:full} for matched PiT variants. Removing the freestream condition (geometry-only PiT) collapses both field accuracy and lift ranking. Supplying $(U_{\infty},\alpha)$ by input concatenation, with or without a width increase to match CoPiT's parameter count, recovers lift ranking but remains weaker than FiLM on surface loss, volume loss and $\rho_d$. Decoder-only FiLM attains the lowest surface and volume losses in this family. Complete CoPiT (processor and decoder FiLM) with seed~0 has the highest $\rho_d$; a second complete run (seed~42) drops to $\rho_d=0.697$, so drag ranking is seed-sensitive. These ablation rows are not mixed into Table~\ref{tab:full}.
+Matched PiT variants are evaluated with the same full-data test protocol as in Table~\ref{tab:full} (Table~\ref{tab:ablate_air}). Removing the freestream condition (geometry-only PiT) collapses both field accuracy and lift ranking. Supplying $(U_{\infty},\alpha)$ by input concatenation, with or without a width increase to match CoPiT's parameter count, recovers lift ranking but remains weaker than FiLM on surface loss, volume loss and $\rho_d$. Decoder-only FiLM attains the lowest surface and volume losses in this family, whereas complete CoPiT (processor and decoder FiLM) attains the highest $\rho_d$. The ablation is reported separately from Table~\ref{tab:full}.
 
 \begin{table}[H]
 \caption{AirfRANS full-data test ablation (same evaluator as Table~\ref{tab:full}). Single-run point estimates; the lowest field loss and highest rank correlation in each column are in \textbf{bold}.}
@@ -529,8 +516,7 @@ Concatenation only & 0.009882 & 0.035483 & 0.6478 & \textbf{0.9995} \\
 Widened concatenation & 0.008969 & 0.037486 & 0.7104 & 0.9993 \\
 Processor-only FiLM & 0.007099 & 0.037301 & 0.6774 & 0.9991 \\
 Decoder-only FiLM & \textbf{0.002370} & \textbf{0.026978} & 0.8273 & 0.9992 \\
-Complete CoPiT (seed 0) & 0.004228 & 0.028599 & \textbf{0.8388} & 0.9994 \\
-Complete CoPiT (seed 42) & 0.003268 & 0.030603 & 0.6974 & 0.9993 \\
+Complete CoPiT & 0.004228 & 0.028599 & \textbf{0.8388} & 0.9994 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -538,7 +524,7 @@ Complete CoPiT (seed 42) & 0.003268 & 0.030603 & 0.6974 & 0.9993 \\
 \subsection{BlendedNet++ results}
 \label{sec:blended}
 
-Table~\ref{tab:blendednetpp} reports single-run normalised pointwise MSE on the full test set under the common reimplementation protocol. Among these point estimates, CoPiT has the lowest overall MSE ($0.0530$) and the lowest errors on $C_{p}$ and $C_{f,x}$; Transolver is the closest competitor overall ($0.0568$, about $7\%$ higher) and has a slightly lower $C_{f,z}$ error. Streamwise skin friction $C_{f,x}$ is the hardest channel for every model. All scores are expressed in the same per-channel $z$-score space used for training and therefore differ in scale from physical relative errors reported elsewhere. The ordering is a single-run point estimate. The GNOT reimplementation completed training (early stopping at validation MSE $0.547$) but remained an order of magnitude above the other models and is not treated as a competitive ranking.
+On the official forward test set, under a common reimplementation protocol, CoPiT attains the lowest overall normalised MSE ($0.0530$) and the lowest errors on $C_{p}$ and $C_{f,x}$ (Table~\ref{tab:blendednetpp}). Transolver is the closest competitor overall ($0.0568$, about $7\%$ higher) and has a slightly lower $C_{f,z}$ error. Streamwise skin friction $C_{f,x}$ is the hardest channel for every model. All scores are expressed in the same per-channel $z$-score space used for training and therefore differ in scale from physical relative errors reported elsewhere. The ordering is a single-run point estimate. The GNOT reimplementation completed training (early stopping at validation MSE $0.547$) but remained an order of magnitude above the other models and is not treated as a competitive ranking.
 
 \begin{table}[H]
 \caption{BlendedNet++ forward surface regression under a common reimplementation protocol (test set, $N=2{,}498$). Single-run normalised MSE; the lowest point estimate in each column is shown in \textbf{bold}.}
@@ -559,7 +545,7 @@ GNOT        & 0.5234 & 0.5055 & 0.5088 & 0.5559 \\
 \end{tabular}
 \end{table}
 
-Figure~\ref{fig:blendednetpp_cp_cases} shows one test case (\texttt{test\_case\_0674}). Both CoPiT and Transolver recover the large-scale $C_p$ topology; CoPiT exhibits weaker error peaks near the wing--body junction on this sample (surface $C_p$ relative $L^{1}$ error of order $0.06$ versus $0.12$). This qualitative example illustrates spatial error structure and is not used as evidence of population-level superiority.
+Surface $C_p$ on one test case (\texttt{test\_case\_0674}) is shown in Fig.~\ref{fig:blendednetpp_cp_cases}. Both CoPiT and Transolver recover the large-scale topology; CoPiT exhibits weaker error peaks near the wing--body junction on this sample (surface $C_p$ relative $L^{1}$ error of order $0.06$ versus $0.12$). The comparison is qualitative and is not used as evidence of population-level superiority.
 
 \begin{figure}[H]
 \centering
@@ -596,7 +582,7 @@ Figure~\ref{fig:blendednetpp_cp_cases} shows one test case (\texttt{test\_case\_
 \label{fig:blendednetpp_cp_cases}
 \end{figure}
 
-Table~\ref{tab:ablate_bnpp} isolates the conditioning mechanism on the same PiT backbone, Euclidean metric, official split and 100-epoch budget. Concatenation-only (12-dimensional globals broadcast into 18-dimensional point features, no FiLM) yields overall test MSE $0.0741$. Adding FiLM to that encoding (hybrid) reduces the error to $0.0570$. Removing the broadcast and retaining only dual-stage FiLM---the reported CoPiT configuration---gives $0.0530$. Thus, on this split, FiLM is beneficial relative to concatenation, and broadcasting globals into the encoder is not required once FiLM is present. These three runs are single-seed point estimates.
+The conditioning mechanism is isolated on the same PiT backbone, Euclidean metric, official split and 100-epoch budget in Table~\ref{tab:ablate_bnpp}. Concatenation-only (12-dimensional globals broadcast into 18-dimensional point features, no FiLM) yields overall test MSE $0.0741$. Adding FiLM to that encoding (hybrid) reduces the error to $0.0570$. Removing the broadcast and retaining only dual-stage FiLM---the reported CoPiT configuration---gives $0.0530$. Thus, on this split, FiLM is beneficial relative to concatenation, and broadcasting globals into the encoder is not required once FiLM is present. These three runs are single-seed point estimates.
 
 \begin{table}[H]
 \caption{BlendedNet++ conditioning ablation on the official forward test set ($N=2{,}498$). Single-run normalised MSE; lowest point estimate in each column in \textbf{bold}. All variants use the same PiT backbone and Euclidean positional metric.}
@@ -619,10 +605,10 @@ FiLM-only (CoPiT) & \textbf{0.0530} & \textbf{0.0181} & \textbf{0.0991} & \textb
 The drag coefficient is a small residual between pressure and friction contributions, so relative error is sensitive to modest absolute deviations and to cases with small reference drag. Spearman correlation measures the ordering of cases and can be informative for design screening, but it does not measure calibration or absolute load accuracy. The full-data run combines high $\rho_d$ with a mean relative drag error of approximately $46\%$; both aspects must therefore be reported.
 
 \noindent\textbf{Role of FiLM.}\ 
-On AirfRANS (Table~\ref{tab:ablate_air}), a global condition is necessary: geometry-only PiT is not competitive. FiLM variants improve surface loss and $\rho_d$ relative to concatenation; increasing hidden width without FiLM does not close that gap. Decoder-only FiLM can outperform complete CoPiT on field MSE, so the two FiLM stages are not uniformly additive. Complete CoPiT (seed~0) has the highest $\rho_d$ in the family, but a second seed gives $\rho_d=0.697$. On BlendedNet++ (Table~\ref{tab:ablate_bnpp}), FiLM-only CoPiT outperforms both concatenation and hybrid broadcast-plus-FiLM on the same backbone and Euclidean metric.
+On AirfRANS (Table~\ref{tab:ablate_air}), a global condition is necessary: geometry-only PiT is not competitive. FiLM variants improve surface loss and $\rho_d$ relative to concatenation; increasing hidden width without FiLM does not close that gap. Decoder-only FiLM can outperform complete CoPiT on field MSE, so the two FiLM stages are not uniformly additive, while complete CoPiT attains the highest $\rho_d$ in the reported family. On BlendedNet++ (Table~\ref{tab:ablate_bnpp}), FiLM-only CoPiT outperforms both concatenation and hybrid broadcast-plus-FiLM on the same backbone and Euclidean metric.
 
 \noindent\textbf{Complexity.}\ 
-If $N_{\mathrm{ltt}}$ denotes the latent-mesh size, $L$ the number of processor blocks, $H$ the number of heads and $D$ the hidden width, dense processor self-attention scales as $\mathcal{O}(L N_{\mathrm{ltt}}^{2} H D)$ in arithmetic operations and requires quadratic attention storage unless evaluated in chunks. Encoder and decoder costs depend on the number of retained query--key pairs and are linear in the full-mesh size only when the neighbourhood size is bounded or chunking avoids materialising a dense matrix. Table~\ref{tab:runtime} records wall-clock training time on one NVIDIA A100 (80\,GB) for the main single-run checkpoints. CoPiT is smaller than Transolver on AirfRANS (Table~\ref{tab:params}) and trains in less wall-clock time on that dataset; on BlendedNet++ the two training times are comparable.
+If $N_{\mathrm{ltt}}$ denotes the latent-mesh size, $L$ the number of processor blocks, $H$ the number of heads and $D$ the hidden width, dense processor self-attention scales as $\mathcal{O}(L N_{\mathrm{ltt}}^{2} H D)$ in arithmetic operations and requires quadratic attention storage unless evaluated in chunks. Encoder and decoder costs depend on the number of retained query--key pairs and are linear in the full-mesh size only when the neighbourhood size is bounded or chunking avoids materialising a dense matrix. Wall-clock training times on one NVIDIA A100 (80\,GB) for the main single-run checkpoints are listed in Table~\ref{tab:runtime}. CoPiT is smaller than Transolver on AirfRANS (Table~\ref{tab:params}) and trains in less wall-clock time on that dataset; on BlendedNet++ the two training times are comparable.
 
 \begin{table}[H]
 \caption{Single-run training wall-clock time on one A100. AirfRANS Full uses 398 epochs; BlendedNet++ uses 100 epochs on the official $8{,}992/1{,}000/2{,}498$ split.}
@@ -648,25 +634,26 @@ Proximity-based attention may still couple points that are close in ambient spac
 \section{Conclusion}
 \label{sec:conclusion}
 %% =====================================================================
-We have presented CoPiT, a conditional neural operator for aerodynamic field prediction on irregular meshes. Building on a position-induced Transformer backbone, CoPiT injects multi-stage FiLM conditioning from freestream and design parameters in the processor and decoder. The pointwise modulation leaves positional-attention weights unchanged, although a discretisation-consistency result for the complete implementation would require additional analysis. On the AirfRANS full-data test set, CoPiT has the lowest surface and volume losses among the compared published baselines and a higher drag rank correlation than Transolver. A matched ablation shows that an unconditioned PiT fails on the fields, concatenation is weaker than FiLM, and decoder-only FiLM can attain lower field losses than complete CoPiT; drag ranking remains seed-sensitive. Advantages are not uniform across the more difficult settings: Graph U-Net has the lowest scarce-data volume loss, and Transolver is more accurate on angle-of-attack extrapolation fields and lift ranking. The large relative drag errors further show that rank correlation alone is insufficient to establish load accuracy. On BlendedNet++, CoPiT obtains the lowest overall normalised test-MSE point estimate among the reimplemented baselines, and a matched ablation favours FiLM-only conditioning over concatenation and hybrid broadcast-plus-FiLM. All scores are single-run point estimates. Future work includes multi-seed evaluation, physics-aware load regularisation, topology-aware metrics, adaptive latent meshes and coupling the surrogate to aerodynamic optimisation loops.
+We have presented CoPiT, a conditional neural operator for aerodynamic field prediction on irregular meshes. Building on a position-induced Transformer backbone, CoPiT injects multi-stage FiLM conditioning from freestream and design parameters in the processor and decoder. The pointwise modulation leaves positional-attention weights unchanged, although a discretisation-consistency result for the complete implementation would require additional analysis. On the AirfRANS full-data test set, CoPiT has the lowest surface and volume losses among the compared published baselines and a higher drag rank correlation than Transolver. A matched ablation shows that an unconditioned PiT fails on the fields, concatenation is weaker than FiLM, and decoder-only FiLM can attain lower field losses than complete CoPiT. Advantages are not uniform across the more difficult settings: Graph U-Net has the lowest scarce-data volume loss, and Transolver is more accurate on angle-of-attack extrapolation fields and lift ranking. The large relative drag errors further show that rank correlation alone is insufficient to establish load accuracy. On BlendedNet++, CoPiT obtains the lowest overall normalised test-MSE point estimate among the reimplemented baselines, and a matched ablation favours FiLM-only conditioning over concatenation and hybrid broadcast-plus-FiLM. All scores are single-run point estimates. Future work includes multi-seed evaluation, physics-aware load regularisation, topology-aware metrics, adaptive latent meshes and coupling the surrogate to aerodynamic optimisation loops.
 
 \section*{Declaration of competing interest}
 The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
 
-\section*{Acknowledgements}
-This work was supported by the Hong Kong Research Grants Council through the RGC Research Fellow Scheme (Project No.~RFS2021-5S03) and the General Research Fund (Project No.~15305624), and by the NSFC/RGC Joint Research Scheme (Project No.~N\_PolyU5145/24).
+%% \section*{Acknowledgements}
+%% This work was supported by the Hong Kong Research Grants Council through the RGC Research Fellow Scheme (Project No.~RFS2021-5S03) and the General Research Fund (Project No.~15305624), and by the NSFC/RGC Joint Research Scheme (Project No.~N\_PolyU5145/24).
 
 \section*{Data availability}
 The AirfRANS dataset is publicly available at \url{https://github.com/Extrality/AirfRANS}. The BlendedNet++ dataset is described by Sung et al.~\cite{sung2025blendednetpp}.
 
 \section*{Code availability}
-Source code, training configurations and this manuscript are available at \url{https://github.com/fanyongchenfyc/copit}.
+%% Source code, training configurations and this manuscript are available at \url{https://github.com/fanyongchenfyc/copit}.
+The source code and training configurations will be released in a public repository upon submission.
 
-\section*{CRediT authorship contribution statement}
-\textbf{Yongchen Fan:} Conceptualization, Methodology, Software, Investigation, Writing -- original draft, Writing -- review \& editing.
-\textbf{Zhonghua Qiao:} Supervision, Writing -- review \& editing.
-\textbf{Junfeng Chen:} Methodology, Supervision, Writing -- review \& editing.
-\textbf{Kailiang Wu:} Supervision, Writing -- review \& editing.
+%% \section*{CRediT authorship contribution statement}
+%% \textbf{Yongchen Fan:} Conceptualization, Methodology, Software, Investigation, Writing -- original draft, Writing -- review \& editing.
+%% \textbf{Zhonghua Qiao:} Supervision, Writing -- review \& editing.
+%% \textbf{Junfeng Chen:} Methodology, Supervision, Writing -- review \& editing.
+%% \textbf{Kailiang Wu:} Supervision, Writing -- review \& editing.
 
 \FloatBarrier
 \bibliographystyle{elsarticle-num}
