@@ -20,7 +20,6 @@ Yours sincerely,
 
 Zhonghua Qiao (corresponding author)  
 Department of Applied Mathematics  
-The Hong Kong Polytechnic University  
-zhonghua.qiao@polyu.edu.hk
+The Hong Kong Polytechnic University
 
 On behalf of Yongchen Fan, Junfeng Chen and Kailiang Wu.

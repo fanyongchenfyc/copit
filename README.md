@@ -33,4 +33,4 @@ The source code and manuscript files in this repository are released under the M
 
 ## Contact
 
-Corresponding author: Zhonghua Qiao (`zhonghua.qiao@polyu.edu.hk`).
+Corresponding author: Zhonghua Qiao. Contact email to be added after confirmation.

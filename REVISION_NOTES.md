@@ -39,7 +39,7 @@
 
 ## Author actions required before submission
 
-- Confirm the PolyU student email (`23040781r@connect.polyu.hk`) and corresponding-author email (`zhonghua.qiao@polyu.edu.hk`).
+- Confirm the PolyU student email (`23040781r@connect.polyu.hk`). Add the corresponding-author email only after Prof.\ Qiao confirms it.
 - Replace `figs/copit.png` and `figs/film.png` with the revised architecture and FiLM drawings (paths already pointed at these files).
 - Add a Zenodo DOI if a frozen archive is minted at submission.
 - Optional: three random seeds for the principal CoPiT vs Transolver comparisons; inference-time / peak-memory table.
