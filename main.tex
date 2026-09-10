@@ -193,18 +193,7 @@ and the learning task is to approximate $u_{g,\mathbf{c}}$ by $\Phi_{\theta}(a_{
 
 \subsection{Position-induced attention}
 \label{sec:posatt}
-A standard building block of Transformer architectures is content-based self-attention~\cite{vaswani2017attention}. Given a feature matrix $U\in\mathbb{R}^{N\times d}$ and trainable matrices $W^{Q}$, $W^{K}$ and $W^{V}$,
-\begin{equation}
-  \operatorname{SelfAtt}(U)
-  =
-  \operatorname{Softmax}
-  \biggl(
-    \frac{U W^{Q}\,(U W^{K})^{\top}}{\sqrt{d}}
-  \biggr)
-  \, U W^{V}.
-  \label{eq:self_att}
-\end{equation}
-The attention weights depend on feature affinities. Consequently they must be recomputed for every input field, and they do not directly encode the geometry of the underlying mesh. For PDE surrogates this is unnatural: the relative positions of sampling points largely determine how local information should be aggregated.
+A standard building block of Transformer architectures is content-based self-attention~\cite{vaswani2017attention}. Query, key and value projections of a feature matrix are combined through a softmax over pairwise feature affinities, so the weights depend on the current field values, must be recomputed for every input, and do not directly encode the geometry of the underlying mesh. For PDE surrogates this is unnatural: the relative positions of sampling points largely determine how local information should be aggregated.
 
 Position-induced attention incorporates such geometric structure in an explicit and efficient way~\cite{chen2024pit}. Let $U\in\mathbb{R}^{N_{v}\times d_{\ell}}$ collect the values of a feature field on a mesh $X_{v}=\{x_{i}\}_{i=1}^{N_{v}}$, and define the pairwise squared-distance matrix
 \begin{equation}
@@ -359,27 +348,25 @@ AirfRANS baselines are MLP~\cite{goodfellow2016deep}, GraphSAGE~\cite{hamilton20
 \subsection{AirfRANS results}
 \label{sec:airfrans}
 
-Velocity, pressure and eddy viscosity on one full-data test case are shown in Fig.~\ref{fig:pred_true}. The predicted fields recover the stagnation region, suction peak, pressure recovery and near-wake, while residuals remain concentrated near the wall. The example is used to visualise spatial error structure rather than to estimate dataset-level accuracy.
+Velocity, pressure and eddy viscosity on one full-data test case are shown in Figs.~\ref{fig:pred_true} and~\ref{fig:pred_true_nw}. The predicted fields recover the stagnation region, suction peak, pressure recovery and near-wake, while residuals remain concentrated near the wall. The example is used to visualise spatial error structure rather than to estimate dataset-level accuracy.
 
 \begin{figure}[H]
 \centering
-\begin{subfigure}[t]{\linewidth}
-  \centering
-  \includegraphics[width=0.98\linewidth,height=0.40\textheight,keepaspectratio]{figs/airfrans_ff_all.png}
-  \caption{Full field}
-\end{subfigure}\\[0.5em]
-\begin{subfigure}[t]{\linewidth}
-  \centering
-  \includegraphics[width=0.98\linewidth,height=0.40\textheight,keepaspectratio]{figs/airfrans_nw_all.png}
-  \caption{Near-wall view}
-\end{subfigure}
-\caption{AirfRANS fields on one full-data test case ($u_x$, $u_y$, $p$, $\nu_t$): CFD reference, CoPiT prediction and absolute error. Truth and prediction share a colour scale per variable; the error uses a separate scale.}
+\includegraphics[width=0.98\linewidth]{figs/airfrans_ff_all.png}
+\caption{AirfRANS full-field maps on one full-data test case ($u_x$, $u_y$, $p$, $\nu_t$): CFD reference, CoPiT prediction and absolute error. Truth and prediction share a colour scale per variable; the error uses a separate scale.}
 \label{fig:pred_true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.98\linewidth]{figs/airfrans_nw_all.png}
+\caption{Near-wall view of the same AirfRANS test case as Fig.~\ref{fig:pred_true}.}
+\label{fig:pred_true_nw}
 \end{figure}
 
 Since $C_{d}$ and $C_{l}$ are obtained by surface integration of pressure and wall shear, Figure~\ref{fig:airfrans_surf_cmp} compares these surface quantities for CoPiT and Transolver on the same test airfoil. Wall shear is computed from the predicted velocity field under a no-slip wall condition. On this sample, the surface-pressure relative $L^{1}$ errors are approximately $0.06$ for CoPiT and $0.18$ for Transolver. The case-wise comparison is descriptive and does not replace test-set aggregate statistics.
 
-\begin{figure}[H]
+\begin{figure}[t]
 \centering
 \includegraphics[width=0.98\linewidth,height=0.34\textheight,keepaspectratio]{figs/airfrans_copit_vs_transolver_surf.png}
 \caption{Surface pressure and wall shear on one AirfRANS test case (\texttt{airFoil2D\_SST\_31.812\_\ldots}). Top: CoPiT; bottom: Transolver. Blue: CFD; orange: prediction. Wall shear is evaluated from the predicted velocity with a no-slip wall condition.}
@@ -547,7 +534,7 @@ GNOT        & 0.5234 & 0.5055 & 0.5088 & 0.5559 \\
 
 Surface $C_p$ on one test case (\texttt{test\_case\_0674}) is shown in Fig.~\ref{fig:blendednetpp_cp_cases}. Both CoPiT and Transolver recover the large-scale topology; CoPiT exhibits weaker error peaks near the wing--body junction on this sample (surface $C_p$ relative $L^{1}$ error of order $0.06$ versus $0.12$). The comparison is qualitative and is not used as evidence of population-level superiority.
 
-\begin{figure}[H]
+\begin{figure}[t]
 \centering
 \includegraphics[width=0.98\linewidth]{figs/blend_cp_case0674.png}
 \caption{BlendedNet++ surface $C_p$ on \texttt{test\_case\_0674}: CFD reference, CoPiT and Transolver predictions (shared colour scale), and absolute errors (shared colour scale).}
