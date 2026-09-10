@@ -69,7 +69,7 @@ High-fidelity Reynolds-averaged Navier--Stokes (RANS) simulations remain the sta
 \end{abstract}
 
 \begin{keyword}
-neural operator \sep aerodynamic surrogate \sep unstructured mesh \sep FiLM
+Neural operator \sep Aerodynamic surrogate \sep Transformer \sep Feature-wise linear modulation
 \end{keyword}
 
 \end{frontmatter}
@@ -359,21 +359,21 @@ AirfRANS baselines are MLP~\cite{goodfellow2016deep}, GraphSAGE~\cite{hamilton20
 \subsection{AirfRANS results}
 \label{sec:airfrans}
 
-Pressure on one full-data test case is shown in Fig.~\ref{fig:pred_true}. The predicted field recovers the stagnation region, suction peak and pressure recovery, while residuals are concentrated near the wall and in the near wake. The example is used to visualise spatial error structure rather than to estimate dataset-level accuracy.
+Velocity, pressure and eddy viscosity on one full-data test case are shown in Fig.~\ref{fig:pred_true}. The predicted fields recover the stagnation region, suction peak, pressure recovery and near-wake, while residuals remain concentrated near the wall. The example is used to visualise spatial error structure rather than to estimate dataset-level accuracy.
 
 \begin{figure}[H]
 \centering
 \begin{subfigure}[t]{\linewidth}
   \centering
-  \includegraphics[width=0.98\linewidth,height=0.28\textheight,keepaspectratio]{figs/airfrans_ff_p.png}
+  \includegraphics[width=0.98\linewidth,height=0.40\textheight,keepaspectratio]{figs/airfrans_ff_all.png}
   \caption{Full field}
-\end{subfigure}\\[0.6em]
+\end{subfigure}\\[0.5em]
 \begin{subfigure}[t]{\linewidth}
   \centering
-  \includegraphics[width=0.98\linewidth,height=0.28\textheight,keepaspectratio]{figs/airfrans_nw_p.png}
+  \includegraphics[width=0.98\linewidth,height=0.40\textheight,keepaspectratio]{figs/airfrans_nw_all.png}
   \caption{Near-wall view}
 \end{subfigure}
-\caption{AirfRANS pressure field on one full-data test case: CFD reference, CoPiT prediction and absolute error (full field and near-wall zoom).}
+\caption{AirfRANS fields on one full-data test case ($u_x$, $u_y$, $p$, $\nu_t$): CFD reference, CoPiT prediction and absolute error. Truth and prediction share a colour scale per variable; the error uses a separate scale.}
 \label{fig:pred_true}
 \end{figure}
 
@@ -489,12 +489,12 @@ Predicted and reference force coefficients on the 200-case full-data test set ar
 \centering
 \begin{subfigure}[t]{\linewidth}
   \centering
-  \includegraphics[width=0.92\linewidth,height=0.26\textheight,keepaspectratio]{figs/copit_airfrans_scatter_cd_cl.png}
+  \includegraphics[width=0.92\linewidth]{figs/copit_airfrans_scatter_cd_cl.png}
   \caption{CoPiT}
 \end{subfigure}\\[0.6em]
 \begin{subfigure}[t]{\linewidth}
   \centering
-  \includegraphics[width=0.92\linewidth,height=0.26\textheight,keepaspectratio]{figs/transolver_airfrans_scatter_cd_cl.png}
+  \includegraphics[width=0.92\linewidth]{figs/transolver_airfrans_scatter_cd_cl.png}
   \caption{Transolver}
 \end{subfigure}
 \caption{True versus predicted $C_d$ (left panels) and $C_l$ (right panels) on the AirfRANS full-data test set.}
@@ -549,36 +549,8 @@ Surface $C_p$ on one test case (\texttt{test\_case\_0674}) is shown in Fig.~\ref
 
 \begin{figure}[H]
 \centering
-\begin{subfigure}[t]{0.32\linewidth}
-  \centering
-  \includegraphics[width=\linewidth,height=0.18\textheight,keepaspectratio]{figs/blend_true.png}
-  \caption*{CFD}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.32\linewidth}
-  \centering
-  \includegraphics[width=\linewidth,height=0.18\textheight,keepaspectratio]{figs/blend_copit_pred.png}
-  \caption*{CoPiT}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.32\linewidth}
-  \centering
-  \includegraphics[width=\linewidth,height=0.18\textheight,keepaspectratio]{figs/blend_transolver_pred.png}
-  \caption*{Transolver}
-\end{subfigure}\\[0.5em]
-\begin{subfigure}[t]{0.32\linewidth}
-  \centering
-  \phantom{\includegraphics[width=\linewidth,height=0.18\textheight,keepaspectratio]{figs/blend_true.png}}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.32\linewidth}
-  \centering
-  \includegraphics[width=\linewidth,height=0.18\textheight,keepaspectratio]{figs/blend_copit_error.png}
-  \caption*{CoPiT error}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.32\linewidth}
-  \centering
-  \includegraphics[width=\linewidth,height=0.18\textheight,keepaspectratio]{figs/blend_transolver_error.png}
-  \caption*{Transolver error}
-\end{subfigure}
-\caption{BlendedNet++ surface $C_p$ on \texttt{test\_case\_0674}: CFD reference, CoPiT and Transolver predictions, and absolute errors.}
+\includegraphics[width=0.98\linewidth]{figs/blend_cp_case0674.png}
+\caption{BlendedNet++ surface $C_p$ on \texttt{test\_case\_0674}: CFD reference, CoPiT and Transolver predictions (shared colour scale), and absolute errors (shared colour scale).}
 \label{fig:blendednetpp_cp_cases}
 \end{figure}
 
