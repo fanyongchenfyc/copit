@@ -24,6 +24,7 @@
 %% every \section and can look like section page breaks when many figures remain)
 \usepackage{float}
 \usepackage{placeins}
+\usepackage{needspace}
 
 %% Hyperlinks without coloured boxes
 \usepackage[hidelinks]{hyperref}
@@ -42,6 +43,7 @@
 \setlength{\intextsep}{10pt plus 2pt minus 2pt}
 \setlength{\abovecaptionskip}{5pt}
 \setlength{\belowcaptionskip}{3pt}
+\raggedbottom
 
 \newtheorem{proposition}{Proposition}
 
@@ -227,13 +229,6 @@ In the PiT architecture~\cite{chen2024pit}, position-attention is organised in a
 \label{sec:overview}
 The architecture is summarised in Fig.~\ref{fig:copit_arch}. Given an input mesh with geometric features, a target mesh and a condition vector $\mathbf{c}$, the network (i)~encodes the input onto a latent mesh, (ii)~refines latent features with $L$ processor blocks, each followed by FiLM, and (iii)~decodes to the target mesh with a final FiLM stage before the readout. The same skeleton is used for AirfRANS and BlendedNet++; dataset-specific inputs, the content of $\mathbf{c}$ and auxiliary decoder channels are stated in Section~\ref{sec:setup}.
 
-\begin{figure}[!ht]
-\centering
-\includegraphics[width=0.86\linewidth,keepaspectratio]{figs/copit_v2.png}
-\caption{Overview of CoPiT. An encoder maps the input mesh to a latent mesh; $L$ processor blocks apply position-attention, instance normalisation and FiLM; a decoder with a further FiLM stage reads out the predicted field. A FiLM generator maps the global condition $\mathbf{c}$ to channel-wise modulation parameters.}
-\label{fig:copit_arch}
-\end{figure}
-
 \subsection{Multi-stage FiLM conditioning}
 \label{sec:film}
 Let $\mathbf{h}\in\mathbb{R}^{D}$ be a hidden feature at a mesh (or latent) point after instance normalisation~\cite{ulyanov2016instance}. A FiLM generator $g_{\theta}:\mathbb{R}^{d_{c}}\to\mathbb{R}^{2D}$ maps $\mathbf{c}$ to scale and shift vectors $(\gamma(\mathbf{c}),\beta(\mathbf{c}))$ and applies
@@ -243,7 +238,13 @@ Let $\mathbf{h}\in\mathbb{R}^{D}$ be a hidden feature at a mesh (or latent) poin
   \gamma(\mathbf{c})\odot\mathbf{h}+\beta(\mathbf{c}).
   \label{eq:film}
 \end{equation}
-\begin{figure}[!ht]
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.86\linewidth,keepaspectratio]{figs/copit_v2.png}
+\caption{Overview of CoPiT. An encoder maps the input mesh to a latent mesh; $L$ processor blocks apply position-attention, instance normalisation and FiLM; a decoder with a further FiLM stage reads out the predicted field. A FiLM generator maps the global condition $\mathbf{c}$ to channel-wise modulation parameters.}
+\label{fig:copit_arch}
+\end{figure}
+\begin{figure}[t]
 \centering
 \includegraphics[width=0.82\linewidth,keepaspectratio]{figs/FiLM_diagram.pdf}
 \caption{Feature-wise Linear Modulation (FiLM)~\cite{perez2018film}. A global condition vector $\mathbf{c}$ is mapped to channel-wise scale $\gamma(\mathbf{c})$ and shift $\beta(\mathbf{c})$, which modulate instance-normalised features.}
@@ -350,14 +351,14 @@ AirfRANS baselines are MLP~\cite{goodfellow2016deep}, GraphSAGE~\cite{hamilton20
 
 Velocity, pressure and eddy viscosity on one full-data test case are shown in Figs.~\ref{fig:pred_true} and~\ref{fig:pred_true_nw}. The predicted fields recover the stagnation region, suction peak, pressure recovery and near-wake, while residuals remain concentrated near the wall. The example is used to visualise spatial error structure rather than to estimate dataset-level accuracy.
 
-\begin{figure}[H]
+\begin{figure}[t]
 \centering
 \includegraphics[width=0.98\linewidth]{figs/airfrans_ff_all.png}
 \caption{AirfRANS full-field maps on one full-data test case ($u_x$, $u_y$, $p$, $\nu_t$): CFD reference, CoPiT prediction and absolute error. Truth and prediction share a colour scale per variable; the error uses a separate scale.}
 \label{fig:pred_true}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[t]
 \centering
 \includegraphics[width=0.98\linewidth]{figs/airfrans_nw_all.png}
 \caption{Near-wall view of the same AirfRANS test case as Fig.~\ref{fig:pred_true}.}
@@ -476,17 +477,18 @@ Predicted and reference force coefficients on the 200-case full-data test set ar
 \centering
 \begin{subfigure}[t]{\linewidth}
   \centering
-  \includegraphics[width=0.92\linewidth]{figs/copit_airfrans_scatter_cd_cl.png}
+  \includegraphics[width=\linewidth]{figs/copit_airfrans_scatter_cd_cl.png}
   \caption{CoPiT}
-\end{subfigure}\\[0.6em]
+\end{subfigure}\\[0.3em]
 \begin{subfigure}[t]{\linewidth}
   \centering
-  \includegraphics[width=0.92\linewidth]{figs/transolver_airfrans_scatter_cd_cl.png}
+  \includegraphics[width=\linewidth]{figs/transolver_airfrans_scatter_cd_cl.png}
   \caption{Transolver}
 \end{subfigure}
 \caption{True versus predicted $C_d$ (left panels) and $C_l$ (right panels) on the AirfRANS full-data test set.}
 \label{fig:force_scatter}
 \end{figure}
+\Needspace{12\baselineskip}
 
 Matched PiT variants are evaluated with the same full-data test protocol as in Table~\ref{tab:full} (Table~\ref{tab:ablate_air}). Removing the freestream condition (geometry-only PiT) collapses both field accuracy and lift ranking. Supplying $(U_{\infty},\alpha)$ by input concatenation, with or without a width increase to match CoPiT's parameter count, recovers lift ranking but remains weaker than FiLM on surface loss, volume loss and $\rho_d$. Decoder-only FiLM attains the lowest surface and volume losses in this family, whereas complete CoPiT (processor and decoder FiLM) attains the highest $\rho_d$. The ablation is reported separately from Table~\ref{tab:full}.
 
@@ -513,7 +515,7 @@ Complete CoPiT & 0.004228 & 0.028599 & \textbf{0.8388} & 0.9994 \\
 
 On the official forward test set, under a common reimplementation protocol, CoPiT attains the lowest overall normalised MSE ($0.0530$) and the lowest errors on $C_{p}$ and $C_{f,x}$ (Table~\ref{tab:blendednetpp}). Transolver is the closest competitor overall ($0.0568$, about $7\%$ higher) and has a slightly lower $C_{f,z}$ error. Streamwise skin friction $C_{f,x}$ is the hardest channel for every model. All scores are expressed in the same per-channel $z$-score space used for training and therefore differ in scale from physical relative errors reported elsewhere. The ordering is a single-run point estimate. The GNOT reimplementation completed training (early stopping at validation MSE $0.547$) but remained an order of magnitude above the other models and is not treated as a competitive ranking.
 
-\begin{table}[H]
+\begin{table}[t]
 \caption{BlendedNet++ forward surface regression under a common reimplementation protocol (test set, $N=2{,}498$). Single-run normalised MSE; the lowest point estimate in each column is shown in \textbf{bold}.}
 \label{tab:blendednetpp}
 \centering\footnotesize
@@ -569,7 +571,7 @@ On AirfRANS (Table~\ref{tab:ablate_air}), a global condition is necessary: geome
 \noindent\textbf{Complexity.}\ 
 If $N_{\mathrm{ltt}}$ denotes the latent-mesh size, $L$ the number of processor blocks, $H$ the number of heads and $D$ the hidden width, dense processor self-attention scales as $\mathcal{O}(L N_{\mathrm{ltt}}^{2} H D)$ in arithmetic operations and requires quadratic attention storage unless evaluated in chunks. Encoder and decoder costs depend on the number of retained query--key pairs and are linear in the full-mesh size only when the neighbourhood size is bounded or chunking avoids materialising a dense matrix. Wall-clock training times on one NVIDIA A100 (80\,GB) for the main single-run checkpoints are listed in Table~\ref{tab:runtime}. CoPiT is smaller than Transolver on AirfRANS (Table~\ref{tab:params}) and trains in less wall-clock time on that dataset; on BlendedNet++ the two training times are comparable.
 
-\begin{table}[H]
+\begin{table}[ht]
 \caption{Single-run training wall-clock time on one A100. AirfRANS Full uses 398 epochs; BlendedNet++ uses 100 epochs on the official $8{,}992/1{,}000/2{,}498$ split.}
 \label{tab:runtime}
 \centering\footnotesize
