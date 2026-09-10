@@ -55,9 +55,11 @@
 
 \author[polyu]{Yongchen Fan}
 \ead{23040781r@connect.polyu.hk}
-\author[polyu]{Zhonghua Qiao}%\corref{cor1}
 \author[hkust]{Junfeng Chen}
+\author[polyu]{Zhonghua Qiao}
 \author[sustech]{Kailiang Wu}
+
+%\corref{cor1}
 
 % \cortext[cor1]{Corresponding author}
 \address[polyu]{Department of Applied Mathematics, The Hong Kong Polytechnic University, Hung Hom, Kowloon, Hong Kong, China}
@@ -69,7 +71,7 @@ High-fidelity Reynolds-averaged Navier--Stokes (RANS) simulations remain the sta
 \end{abstract}
 
 \begin{keyword}
-neural operator \sep aerodynamic surrogate \sep unstructured mesh \sep FiLM
+Neural operator \sep Aerodynamic surrogate \sep Transformer \sep Feature-wise linear modulation 
 \end{keyword}
 
 \end{frontmatter}
@@ -240,7 +242,7 @@ The architecture is summarised in Fig.~\ref{fig:copit_arch}. Given an input mesh
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=0.86\linewidth,keepaspectratio]{figs/copit_v2.png}
+\includegraphics[width=0.86\linewidth,keepaspectratio]{figs/copit_v3.png}
 \caption{Overview of CoPiT. An encoder maps the input mesh to a latent mesh; $L$ processor blocks apply position-attention, instance normalisation and FiLM; a decoder with a further FiLM stage reads out the predicted field. A FiLM generator maps the global condition $\mathbf{c}$ to channel-wise modulation parameters.}
 \label{fig:copit_arch}
 \end{figure}
