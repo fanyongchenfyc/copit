@@ -44,6 +44,11 @@
 \setlength{\abovecaptionskip}{5pt}
 \setlength{\belowcaptionskip}{3pt}
 \raggedbottom
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{8pt plus 2pt minus 2pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+\makeatother
 
 \newtheorem{proposition}{Proposition}
 
@@ -365,15 +370,7 @@ Velocity, pressure and eddy viscosity on one full-data test case are shown in Fi
 \label{fig:pred_true_nw}
 \end{figure}
 
-Since $C_{d}$ and $C_{l}$ are obtained by surface integration of pressure and wall shear, Figure~\ref{fig:airfrans_surf_cmp} compares these surface quantities for CoPiT and Transolver on the same test airfoil. Wall shear is computed from the predicted velocity field under a no-slip wall condition. On this sample, the surface-pressure relative $L^{1}$ errors are approximately $0.06$ for CoPiT and $0.18$ for Transolver. The case-wise comparison is descriptive and does not replace test-set aggregate statistics.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.98\linewidth,height=0.34\textheight,keepaspectratio]{figs/airfrans_copit_vs_transolver_surf.png}
-\caption{Surface pressure and wall shear on one AirfRANS test case (\texttt{airFoil2D\_SST\_31.812\_\ldots}). Top: CoPiT; bottom: Transolver. Blue: CFD; orange: prediction. Wall shear is evaluated from the predicted velocity with a no-slip wall condition.}
-\label{fig:airfrans_surf_cmp}
-\end{figure}
-
+\Needspace{8\baselineskip}
 Tables~\ref{tab:full}--\ref{tab:aoa} report held-out test losses and force-rank correlations for the four AirfRANS splits. All surface and volume entries are evaluation losses rather than optimisation losses. The graph-baseline entries are taken from the benchmark evaluation outputs; Transolver and CoPiT predictions are aggregated with the same channel definitions.
 
 \begin{table}[H]
@@ -394,7 +391,7 @@ CoPiT       & \textbf{0.004228} & \textbf{0.028599} & \textbf{0.8388} & \textbf{
 \end{tabular}
 \end{table}
 
-On the full-data split, CoPiT reduces the test surface and volume losses relative to Transolver by approximately $54\%$ and $24\%$, respectively, and has the highest drag and lift rank correlations. CoPiT uses about four times fewer trainable parameters than Transolver (Table~\ref{tab:params}).
+On the full-data split, CoPiT reduces the test surface and volume losses relative to Transolver by approximately $54\%$ and $24\%$, respectively, and has the highest drag and lift rank correlations. CoPiT uses about four times fewer trainable parameters than Transolver (Table~\ref{tab:params}). The case-wise field maps in Figs.~\ref{fig:pred_true}--\ref{fig:pred_true_nw} illustrate where the remaining error is concentrated.
 
 \begin{table}[H]
 \caption{AirfRANS scarce-data test results (200 training cases).}
@@ -471,6 +468,15 @@ Params & 19{,}988 & 29{,}204 & 75{,}244 & 65{,}820 & 5{,}996{,}868 & 1{,}494{,}5
 \end{tabular}
 \end{table}
 
+Since $C_{d}$ and $C_{l}$ are obtained by surface integration of pressure and wall shear, Figure~\ref{fig:airfrans_surf_cmp} compares these surface quantities for CoPiT and Transolver on the same test airfoil. Wall shear is computed from the predicted velocity field under a no-slip wall condition. On this sample, the surface-pressure relative $L^{1}$ errors are approximately $0.06$ for CoPiT and $0.18$ for Transolver. The case-wise comparison is descriptive and does not replace test-set aggregate statistics.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.98\linewidth,height=0.34\textheight,keepaspectratio]{figs/airfrans_copit_vs_transolver_surf.png}
+\caption{Surface pressure and wall shear on one AirfRANS test case (\texttt{airFoil2D\_SST\_31.812\_\ldots}). Top: CoPiT; bottom: Transolver. Blue: CFD; orange: prediction. Wall shear is evaluated from the predicted velocity with a no-slip wall condition.}
+\label{fig:airfrans_surf_cmp}
+\end{figure}
+
 Predicted and reference force coefficients on the 200-case full-data test set are compared in Fig.~\ref{fig:force_scatter} under the same integration protocol. CoPiT yields $\rho_{d}\approx 0.839$ and $\rho_{l}\approx 0.999$, whereas Transolver reaches $\rho_{d}\approx 0.145$ and $\rho_{l}\approx 0.998$: lift ranking is strong for both models, while drag ranking is substantially improved by CoPiT.
 
 \begin{figure}[t]
@@ -488,7 +494,6 @@ Predicted and reference force coefficients on the 200-case full-data test set ar
 \caption{True versus predicted $C_d$ (left panels) and $C_l$ (right panels) on the AirfRANS full-data test set.}
 \label{fig:force_scatter}
 \end{figure}
-\Needspace{12\baselineskip}
 
 Matched PiT variants are evaluated with the same full-data test protocol as in Table~\ref{tab:full} (Table~\ref{tab:ablate_air}). Removing the freestream condition (geometry-only PiT) collapses both field accuracy and lift ranking. Supplying $(U_{\infty},\alpha)$ by input concatenation, with or without a width increase to match CoPiT's parameter count, recovers lift ranking but remains weaker than FiLM on surface loss, volume loss and $\rho_d$. Decoder-only FiLM attains the lowest surface and volume losses in this family, whereas complete CoPiT (processor and decoder FiLM) attains the highest $\rho_d$. The ablation is reported separately from Table~\ref{tab:full}.
 
@@ -515,7 +520,7 @@ Complete CoPiT & 0.004228 & 0.028599 & \textbf{0.8388} & 0.9994 \\
 
 On the official forward test set, under a common reimplementation protocol, CoPiT attains the lowest overall normalised MSE ($0.0530$) and the lowest errors on $C_{p}$ and $C_{f,x}$ (Table~\ref{tab:blendednetpp}). Transolver is the closest competitor overall ($0.0568$, about $7\%$ higher) and has a slightly lower $C_{f,z}$ error. Streamwise skin friction $C_{f,x}$ is the hardest channel for every model. All scores are expressed in the same per-channel $z$-score space used for training and therefore differ in scale from physical relative errors reported elsewhere. The ordering is a single-run point estimate. The GNOT reimplementation completed training (early stopping at validation MSE $0.547$) but remained an order of magnitude above the other models and is not treated as a competitive ranking.
 
-\begin{table}[t]
+\begin{table}[H]
 \caption{BlendedNet++ forward surface regression under a common reimplementation protocol (test set, $N=2{,}498$). Single-run normalised MSE; the lowest point estimate in each column is shown in \textbf{bold}.}
 \label{tab:blendednetpp}
 \centering\footnotesize
@@ -534,13 +539,31 @@ GNOT        & 0.5234 & 0.5055 & 0.5088 & 0.5559 \\
 \end{tabular}
 \end{table}
 
-Surface $C_p$ on one test case (\texttt{test\_case\_0674}) is shown in Fig.~\ref{fig:blendednetpp_cp_cases}. Both CoPiT and Transolver recover the large-scale topology; CoPiT exhibits weaker error peaks near the wing--body junction on this sample (surface $C_p$ relative $L^{1}$ error of order $0.06$ versus $0.12$). The comparison is qualitative and is not used as evidence of population-level superiority.
+Surface $C_p$ on one test case (\texttt{test\_case\_0674}) is shown in Fig.~\ref{fig:blendednetpp_cp_cases}. Both CoPiT and Transolver recover the large-scale topology; CoPiT exhibits weaker error peaks near the wing--body junction on this sample (relative $L^{1}$ error of order $0.06$ versus $0.12$).
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.98\linewidth]{figs/blend_cp_case0674.png}
 \caption{BlendedNet++ surface $C_p$ on \texttt{test\_case\_0674}: CFD reference, CoPiT and Transolver predictions (shared colour scale), and absolute errors (shared colour scale).}
 \label{fig:blendednetpp_cp_cases}
+\end{figure}
+
+Streamwise skin friction $C_{f,x}$ on the same case is shown in Fig.~\ref{fig:blendednetpp_cfx_cases}. The relative $L^{1}$ errors are of order $0.11$ for CoPiT and $0.35$ for Transolver; the largest residuals lie near the wing--body junction.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.98\linewidth]{figs/blend_cfx_case0674.png}
+\caption{BlendedNet++ streamwise skin friction $C_{f,x}$ on the same test case as Fig.~\ref{fig:blendednetpp_cp_cases}: CFD, CoPiT and Transolver (shared colour scale), and absolute errors (shared colour scale).}
+\label{fig:blendednetpp_cfx_cases}
+\end{figure}
+
+Spanwise skin friction $C_{f,z}$ is shown in Fig.~\ref{fig:blendednetpp_cfz_cases}. The relative $L^{1}$ errors are of order $0.16$ for CoPiT and $0.46$ for Transolver. These three panels are qualitative and are not used as evidence of population-level superiority.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.98\linewidth]{figs/blend_cfz_case0674.png}
+\caption{BlendedNet++ spanwise skin friction $C_{f,z}$ on the same test case as Fig.~\ref{fig:blendednetpp_cp_cases}: CFD, CoPiT and Transolver (shared colour scale), and absolute errors (shared colour scale).}
+\label{fig:blendednetpp_cfz_cases}
 \end{figure}
 
 The conditioning mechanism is isolated on the same PiT backbone, Euclidean metric, official split and 100-epoch budget in Table~\ref{tab:ablate_bnpp}. Concatenation-only (12-dimensional globals broadcast into 18-dimensional point features, no FiLM) yields overall test MSE $0.0741$. Adding FiLM to that encoding (hybrid) reduces the error to $0.0570$. Removing the broadcast and retaining only dual-stage FiLM---the reported CoPiT configuration---gives $0.0530$. Thus, on this split, FiLM is beneficial relative to concatenation, and broadcasting globals into the encoder is not required once FiLM is present. These three runs are single-seed point estimates.
@@ -568,6 +591,7 @@ The drag coefficient is a small residual between pressure and friction contribut
 \noindent\textbf{Role of FiLM.}\ 
 On AirfRANS (Table~\ref{tab:ablate_air}), a global condition is necessary: geometry-only PiT is not competitive. FiLM variants improve surface loss and $\rho_d$ relative to concatenation; increasing hidden width without FiLM does not close that gap. Decoder-only FiLM can outperform complete CoPiT on field MSE, so the two FiLM stages are not uniformly additive, while complete CoPiT attains the highest $\rho_d$ in the reported family. On BlendedNet++ (Table~\ref{tab:ablate_bnpp}), FiLM-only CoPiT outperforms both concatenation and hybrid broadcast-plus-FiLM on the same backbone and Euclidean metric.
 
+\Needspace{8\baselineskip}
 \noindent\textbf{Complexity.}\ 
 If $N_{\mathrm{ltt}}$ denotes the latent-mesh size, $L$ the number of processor blocks, $H$ the number of heads and $D$ the hidden width, dense processor self-attention scales as $\mathcal{O}(L N_{\mathrm{ltt}}^{2} H D)$ in arithmetic operations and requires quadratic attention storage unless evaluated in chunks. Encoder and decoder costs depend on the number of retained query--key pairs and are linear in the full-mesh size only when the neighbourhood size is bounded or chunking avoids materialising a dense matrix. Wall-clock training times on one NVIDIA A100 (80\,GB) for the main single-run checkpoints are listed in Table~\ref{tab:runtime}. CoPiT is smaller than Transolver on AirfRANS (Table~\ref{tab:params}) and trains in less wall-clock time on that dataset; on BlendedNet++ the two training times are comparable.
 
@@ -589,10 +613,13 @@ BlendedNet++ & Hybrid & 25.8\,h \\
 \end{tabular}
 \end{table}
 
+\Needspace{10\baselineskip}
 \section{Conclusion}
 \label{sec:conclusion}
 %% =====================================================================
-We have presented CoPiT, a conditional neural operator for aerodynamic field prediction on irregular meshes. Building on a position-induced Transformer backbone, CoPiT injects multi-stage FiLM conditioning from freestream and design parameters in the processor and decoder. The pointwise modulation leaves positional-attention weights unchanged, although a discretisation-consistency result for the complete implementation would require additional analysis. On the AirfRANS full-data test set, CoPiT has the lowest surface and volume losses among the compared published baselines and a higher drag rank correlation than Transolver. A matched ablation shows that an unconditioned PiT fails on the fields, concatenation is weaker than FiLM, and decoder-only FiLM can attain lower field losses than complete CoPiT. Advantages are not uniform across the more difficult settings: Graph U-Net has the lowest scarce-data volume loss, and Transolver is more accurate on angle-of-attack extrapolation fields and lift ranking. The large relative drag errors further show that rank correlation alone is insufficient to establish load accuracy. On BlendedNet++, CoPiT obtains the lowest overall normalised test-MSE point estimate among the reimplemented baselines, and a matched ablation favours FiLM-only conditioning over concatenation and hybrid broadcast-plus-FiLM.
+We have presented CoPiT, a conditional neural operator for aerodynamic field prediction on irregular meshes. Building on a position-induced Transformer backbone, CoPiT injects multi-stage FiLM conditioning from freestream and design parameters in the processor and decoder. The pointwise modulation leaves positional-attention weights unchanged, although a discretisation-consistency result for the complete implementation would require additional analysis. On the AirfRANS full-data test set, CoPiT has the lowest surface and volume losses among the compared published baselines and a higher drag rank correlation than Transolver. A matched ablation shows that an unconditioned PiT fails on the fields, concatenation is weaker than FiLM, and decoder-only FiLM can attain lower field losses than complete CoPiT. Advantages are not uniform across the more difficult settings: Graph U-Net has the lowest scarce-data volume loss, and Transolver is more accurate on angle-of-attack extrapolation fields and lift ranking.
+
+The large relative drag errors further show that rank correlation alone is insufficient to establish load accuracy. On BlendedNet++, CoPiT obtains the lowest overall normalised test-MSE point estimate among the reimplemented baselines, and a matched ablation favours FiLM-only conditioning over concatenation and hybrid broadcast-plus-FiLM.
 
 Several limitations remain. Proximity-based attention may still couple points that are close in ambient space but separated on the surface. Near-wall residuals dominate the field errors. All principal comparisons use one random seed, so the reported scores are single-run point estimates. Training is fully supervised (surface-weighted or plain MSE). Future work includes multi-seed evaluation, topology-aware metrics, residual-based regularisers, adaptive latent meshes and tighter coupling of the surrogate to aerodynamic optimisation.
 
